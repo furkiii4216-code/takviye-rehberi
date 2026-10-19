@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <title>Takviye & Yaşam Rehberi</title>
+
+<!-- PWA Manifest ve Tema Bağlantıları -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0B6B6F">
+
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230B6B6F' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='9' width='16' height='6' rx='3' transform='rotate(-30 12 12)'/><path d='M12 8v8'/><path d='M8 12h8'/></svg>">
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230B6B6F'><rect x='4' y='9' width='16' height='6' rx='3' transform='rotate(-30 12 12)'/><path d='M12 8v8' stroke='%23fff' stroke-width='2.2'/><path d='M8 12h8' stroke='%23fff' stroke-width='2.2'/></svg>">
 
@@ -227,6 +232,17 @@ try {
   var auth = firebase.auth();
   var db = firebase.firestore();
 } catch (e) { console.log("Firebase başlatma hatası:", e); }
+
+// PWA Service Worker Kaydı (Arka Planda Bildirim Alabilmek İçin)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/firebase-messaging-sw.js').then(function(registration) {
+      console.log('ServiceWorker kayıt başarılı: ', registration.scope);
+    }, function(err) {
+      console.log('ServiceWorker kayıt hatası: ', err);
+    });
+  });
+}
 
 var ADMIN_EMAIL = "furkiii4216@gmail.com";
 
