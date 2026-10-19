@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Takviye & İlaç Klinik Rehberi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Plus+Jakarta+Sans:wght@600;700;800&family=Source+Sans+3:wght@400;500;600&display=swap">
+<!-- Firebase SDK CDN -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<style>
+html { -webkit-text-size-adjust: 100%; color-scheme: light; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+
+:root {
+  --bg: #F1F5F5;
+  --surface: #FFFFFF;
+  --surface-2: #E8EFEF;
+  --ink: #0F2A2E;
+  --muted: #4F6468;
+  --line: #D3DFE0;
+  --accent: #0B6B6F;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #D7ECEC;
+  --warn-bg: #FFF1DC;
+  --warn-ink: #6E3800;
+  --warn-line: #E6B56B;
+  --danger-bg: #FEE2E2;
+  --danger-ink: #991B1B;
+  --danger-line: #F87171;
+  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "Source Sans 3", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C1719; --surface: #132226; --surface-2: #1A2D31; --ink: #E4F0F0; --muted: #93AAAD;
+    --line: #243A3E; --accent: #5FC4C4; --accent-ink: #072022; --accent-soft: #17383B;
+    --warn-bg: #2B2012; --warn-ink: #F2C98A; --warn-line: #5C4520;
+    --danger-bg: #3B1212; --danger-ink: #FCA5A5; --danger-line: #7F1D1D;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.5;
+  padding-block: 0 112px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 480px; margin: 0 auto; min-width: 0; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; letter-spacing: -0.01em; }
+p, ul, ol { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+.top {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg); display: flex; flex-direction: column; gap: 10px;
+  padding-block: 12px 10px; border-bottom: 1px solid var(--line);
+}
+.top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { font-family: var(--font-display); font-weight: 800; font-size: 20px; }
+.brand span { color: var(--accent); }
+.back {
+  width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line);
+  background: var(--surface); display: grid; place-items: center; flex: none;
+}
+.top-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; flex: 1; }
+
+.search-box { position: relative; width: 100%; display: flex; align-items: center; }
+.search-box input {
+  width: 100%; font-family: var(--font-body); font-size: 16px; padding: 10px 14px 10px 38px;
+  border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); outline: none;
+}
+.search-box input:focus { border-color: var(--accent); }
+.search-icon { position: absolute; left: 12px; color: var(--muted); pointer-events: none; display: flex; }
+
+.screen { display: flex; flex-direction: column; gap: 16px; padding-block: 12px; }
+
+.list { display: flex; flex-direction: column; gap: 12px; }
+.card {
+  width: 100%; text-align: left; border: 1px solid var(--line); background: var(--surface);
+  border-radius: 18px; padding: 16px; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center;
+}
+.card h3 { font-size: 18px; color: var(--ink); }
+.card p { color: var(--muted); font-size: 14.5px; grid-column: 1; line-height: 1.35; }
+.card .go { grid-row: 1 / span 3; grid-column: 2; color: var(--muted); }
+.ev { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--muted); font-weight: 500; }
+.meter { display: inline-flex; gap: 3px; }
+.meter i { width: 14px; height: 5px; border-radius: 3px; background: var(--line); display: block; }
+.meter i.on { background: var(--accent); }
+
+.hero { display: flex; flex-direction: column; gap: 6px; }
+.hero h1 { font-size: 26px; font-weight: 800; }
+.alt { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.block { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.block.warn { background: var(--warn-bg); border-color: var(--warn-line); color: var(--warn-ink); }
+.block.good { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.block h2 { font-size: 17px; font-weight: 700; }
+.block ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.block li { padding-left: 16px; position: relative; font-size: 15.5px; }
+.block li::before { content: ""; position: absolute; left: 0; top: 0.6em; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.block.warn li::before { background: var(--warn-ink); }
+
+.dose { display: flex; align-items: baseline; gap: 8px; }
+.dose .big { font-family: var(--font-mono); font-weight: 700; font-size: 26px; color: var(--accent); }
+.dose .per { color: var(--muted); font-size: 14px; }
+
+.srcs { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; counter-reset: s; }
+.srcs li { padding-left: 28px; position: relative; font-size: 14px; }
+.srcs li::before { counter-increment: s; content: counter(s); position: absolute; left: 0; top: 2px; width: 20px; height: 20px; background: var(--surface-2); border-radius: 6px; font-family: var(--font-mono); font-size: 11px; display: grid; place-items: center; }
+.srcs a { color: var(--accent); text-decoration: none; font-weight: 500; }
+
+.alert-banner {
+  background: var(--danger-bg); border: 1px solid var(--danger-line); color: var(--danger-ink);
+  border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 6px; font-size: 14.5px; font-weight: 600;
+}
+
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+.item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.check-row { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 15px; font-weight: 600; }
+.check-row input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer; }
+
+input[type="time"], input[type="text"], input[type="password"], input[type="email"] {
+  font-family: var(--font-body); font-size: 16px; padding: 10px 14px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink); outline: none; width: 100%;
+}
+input:focus { border-color: var(--accent); }
+
+.btn {
+  border: 0; border-radius: 14px; min-height: 48px; padding: 0 18px; font-weight: 700; font-size: 16px;
+  background: var(--accent); color: var(--accent-ink); font-family: var(--font-display); display: inline-flex; align-items: center; justify-content: center;
+}
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn.small { min-height: 38px; font-size: 14px; padding: 0 12px; border-radius: 10px; }
+.btn.full { width: 100%; }
+
+#bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding: 8px max(16px, env(safe-area-inset-left, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-right, 0px));
+}
+#bar .in { max-width: 480px; margin: 0 auto; display: flex; gap: 8px; }
+.tab {
+  flex: 1; border: 0; background: transparent; border-radius: 12px; min-height: 52px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px; font-size: 12.5px; font-weight: 600; color: var(--muted);
+}
+.tab[aria-current="page"] { color: var(--accent); background: var(--accent-soft); }
+.badge { background: var(--accent); color: var(--accent-ink); font-size: 11px; border-radius: 999px; padding: 1px 6px; margin-left: 4px; font-family: var(--font-mono); }
+
+#sheet { position: fixed; inset: 0; z-index: 40; background: rgba(6, 18, 20, 0.55); display: flex; align-items: flex-end; justify-content: center; }
+#sheet[hidden] { display: none !important; }
+.sheet-in {
+  width: 100%; max-width: 480px; background: var(--surface); border-radius: 22px 22px 0 0; border: 1px solid var(--line);
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 14px; max-height: 80vh; overflow-y: auto;
+}
+#toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(88px + env(safe-area-inset-bottom, 0px)); z-index: 50;
+  background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14.5px;
+  max-width: calc(100vw - 32px); text-align: center;
+}
+#toast[hidden] { display: none !important; }
+.fine { font-size: 13.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="top" class="top"></div>
+  <main id="app" class="screen"></main>
+</div>
+<div id="bar" hidden><div class="in" id="barin"></div></div>
+<div id="sheet" hidden></div>
+<div id="toast" role="status" hidden></div>
+
+<script>
+// --- FIREBASE YAPILANDIRMANIZ ---
+var firebaseConfig = {
+  apiKey: "AIzaSyAsMRv1PyCDdeWAUiv65mOGPqrr4mBT2mI",
+  authDomain: "takviyerehberi-50fc5.firebaseapp.com",
+  projectId: "takviyerehberi-50fc5",
+  storageBucket: "takviyerehberi-50fc5.firebasestorage.app",
+  messagingSenderId: "481828686904",
+  appId: "1:481828686904:web:3acb75bc572b3af2a1eacd",
+  measurementId: "G-BZTFBZQ075"
+};
+
+// Firebase Başlatma
+try {
+  firebase.initializeApp(firebaseConfig);
+  var auth = firebase.auth();
+  var db = firebase.firestore();
+} catch (e) { console.log("Firebase başlatma hatası:", e); }
+
+var ADMIN_EMAIL = "furkiii4216@gmail.com";
+
+var SUPPS = {
+  ala: { name: "Alfa Lipoik Asit (ALA)", alt: "Tioktik asit", summary: "Sinir hasarı ve glikoz metabolizması desteği.", ev: 3, evLabel: "Orta-Güçlü", who: ["Diyabetik nöropati yaşayanlar"], care: ["Şeker düşürücü ilaçlarla hipoglisemi riski."], does: ["Nöropatik ağrıyı hafifletir."], dose: { big: "300-600 mg", per: "günde" }, timing: "Aç karnına.", sources: [{ t: "PubMed", u: "#" }] },
+  krom: { name: "Krom Pikolinat", alt: "Chromium", summary: "Kan şekeri dengesi için iz mineral.", ev: 2, evLabel: "Sınırlı", who: ["Tatlı krizini yönetmek isteyenler"], care: ["Böbrek hastaları dikkat etmeli."], does: ["İnsülin duyarlılığını destekler."], dose: { big: "200-400 mcg", per: "günde" }, timing: "Yemekle.", sources: [{ t: "NIH", u: "#" }] },
+  mg: { name: "Magnezyum Bisglisinat", alt: "Magnesium", summary: "Kas gevşemesi ve uyku.", ev: 4, evLabel: "Çok güçlü", who: ["Kramp çekenler"], care: ["Böbrek yetmezliğinde dikkat."], does: ["Kasları gevşetir."], dose: { big: "200-400 mg", per: "günde" }, timing: "Akşam.", sources: [{ t: "PubMed", u: "#" }] }
+};
+
+var DRUGS = {
+  glifor: { name: "Glifor (Metformin)", group: "Şeker İlacı", desc: "Tip 2 Diyabet ilacı." },
+  euthyrox: { name: "Euthyrox (Levotiroksin)", group: "Tiroid İlacı", desc: "Tiroid hormonu." },
+  kumadin: { name: "Kumadin (Varfarin)", group: "Antikoagülan", desc: "Kan sulandırıcı." }
+};
+
+var INTERACTIONS = [
+  { a: "ala", b: "glifor", type: "danger", msg: "⚠️ Ciddi Etkileşim: Alfa Lipoik Asit ile Metformin kan şekerini aşırı düşürebilir." },
+  { a: "mg", b: "euthyrox", type: "warn", msg: "⚠️ Emilim Azalması: Magnezyum ile Tiroid ilacı arasında en az 4 saat olmalıdır." }
+];
+
+var currentUser = null;
+var state = { view: "login", tab: "discover", supp: null, search: "", drugSearch: "" };
+var mine = [];
+var myDrugs = [];
+
+if (typeof auth !== "undefined") {
+  auth.onAuthStateChanged(function(user) {
+    currentUser = user;
+    if (user) {
+      state.view = "home";
+      state.tab = "discover";
+      document.getElementById("bar").hidden = false;
+      loadUserData();
+    } else {
+      state.view = "login";
+      document.getElementById("bar").hidden = true;
+      render();
+    }
+  });
+} else {
+  currentUser = { email: "misafir@kullanici.com" };
+  state.view = "home";
+}
+
+function loadUserData() {
+  if(!currentUser) return;
+  try {
+    mine = JSON.parse(localStorage.getItem("tk_mine_" + currentUser.uid) || "[]");
+    myDrugs = JSON.parse(localStorage.getItem("tk_drugs_" + currentUser.uid) || "[]");
+  } catch(e) { mine = []; myDrugs = []; }
+  render();
+}
+
+function saveUserData() {
+  if(!currentUser) return;
+  try {
+    localStorage.setItem("tk_mine_" + currentUser.uid, JSON.stringify(mine));
+    localStorage.setItem("tk_drugs_" + currentUser.uid, JSON.stringify(myDrugs));
+  } catch(e) {}
+}
+
+var $app = document.getElementById("app"), $top = document.getElementById("top"), $bar = document.getElementById("barin"),
+    $sheet = document.getElementById("sheet"), $toast = document.getElementById("toast"), toastT;
+
+var ICON = {
+  back: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  go: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>',
+  search: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+  pill: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="8.5" width="18" height="7" rx="3.5" transform="rotate(-35 12 12)"/><path d="M9.2 7.4l5.6 9.2" /></svg>',
+  shield: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+};
+
+function meter(n) {
+  return '<span class="meter" aria-hidden="true">' + [1, 2, 3, 4].map(function (i) { return '<i class="' + (i <= n ? "on" : "") + '"></i>'; }).join("") + "</span>";
+}
+
+function renderTop() {
+  if (state.view === "login") {
+    $top.innerHTML = '<div class="top-row"><h1 class="brand">Takviye & İlaç <span>Klinik Rehber</span></h1></div>';
+    return;
+  }
+  if (state.tab === "mine") {
+    $top.innerHTML = '<div class="top-row"><h1 class="brand">Kullandıklarım & <span>Etkileşim</span></h1></div>';
+    return;
+  }
+  if (state.view === "admin") {
+    $top.innerHTML = '<div class="top-row"><button class="back" data-a="back" aria-label="Geri">' + ICON.back + '</button><div class="top-title">Eczacı Admin Paneli</div></div>';
+    return;
+  }
+  if (state.view === "home") {
+    var adminBtn = (currentUser && currentUser.email === ADMIN_EMAIL) ? '<button class="btn small" data-a="go-admin" style="font-size:12px;">Admin Panel</button>' : '';
+    $top.innerHTML = '<div class="top-row"><div class="brand">Takviye<span>Rehberi</span></div>' + adminBtn + '</div>' +
+      '<div class="search-box"><span class="search-icon">' + ICON.search + '</span>' +
+      '<input type="text" id="search-input" placeholder="Takviye adı ara..." value="' + state.search + '"></div>';
+    return;
+  }
+  var title = SUPPS[state.supp] ? SUPPS[state.supp].name : "";
+  $top.innerHTML = '<div class="top-row"><button class="back" data-a="back" aria-label="Geri">' + ICON.back + '</button><div class="top-title">' + title + '</div></div>';
+}
+
+function viewLogin() {
+  return '<div style="display:flex; flex-direction:column; align-items:center; text-align:center; margin-top:24px; gap:8px;">' +
+    '<div style="width:64px; height:64px; border-radius:20px; background:var(--accent-soft); color:var(--accent); display:grid; place-items:center; margin-bottom:4px;">' + ICON.shield + '</div>' +
+    '<h1 style="font-size:24px; font-weight:800;">Takviye & İlaç Rehberi</h1>' +
+    '<p class="fine">Klinik güvenilirlik ve etkileşim takip platformu</p>' +
+    '</div>' +
+    '<div class="block" style="margin-top:16px;">' +
+    '<h2>Oturum Aç</h2>' +
+    '<div style="display:flex; flex-direction:column; gap:12px; margin-top:6px;">' +
+    '<div><label class="fine" style="display:block; margin-bottom:4px;">E-posta Adresi</label><input type="email" id="log-email" placeholder="eczaci@ornek.com"></div>' +
+    '<div><label class="fine" style="display:block; margin-bottom:4px;">Şifre</label><input type="password" id="log-pass" placeholder="••••••••"></div>' +
+    '<div id="log-err" style="color:var(--danger-ink); font-size:14px;"></div>' +
+    '<button class="btn full" data-a="do-login" style="margin-top:4px;">Giriş Yap</button>' +
+    '<button class="btn ghost full" data-a="do-register">Yeni Hesap Oluştur</button>' +
+    '</div></div>';
+}
+
+function viewHome() {
+  var keys = Object.keys(SUPPS);
+  if (state.search.trim() !== "") {
+    var q = state.search.toLowerCase();
+    keys = keys.filter(function (k) {
+      var s = SUPPS[k];
+      return s.name.toLowerCase().indexOf(q) !== -1 || s.summary.toLowerCase().indexOf(q) !== -1;
+    });
+  }
+  var items = keys.map(function (id) {
+    var s = SUPPS[id];
+    return '<button class="card" data-a="supp" data-id="' + id + '">' +
+      '<div><h3>' + s.name + '</h3><p>' + s.summary + '</p><span class="ev">' + meter(s.ev) + s.evLabel + '</span></div>' +
+      '<span class="go">' + ICON.go + '</span></button>';
+  }).join("");
+  return '<div class="list">' + items + '</div>';
+}
+
+function viewDetail() {
+  var s = SUPPS[state.supp];
+  return '<div class="hero"><h1>' + s.name + '</h1><div class="alt">' + s.alt + '</div><span class="ev">' + meter(s.ev) + s.evLabel + '</span></div>' +
+    '<section class="block good"><h2>Kimler Kullanabilir?</h2><ul>' + s.who.map(function(t){return '<li>'+t+'</li>';}).join("") + '</ul></section>' +
+    '<section class="block warn"><h2>Uyarılar</h2><ul>' + s.care.map(function(t){return '<li>'+t+'</li>';}).join("") + '</ul></section>' +
+    '<section class="block"><h2>Ne İşe Yarar?</h2><ul>' + s.does.map(function(t){return '<li>'+t+'</li>';}).join("") + '</ul></section>' +
+    '<section class="block"><h2>Doz</h2><div class="dose"><span class="big">' + s.dose.big + '</span><span class="per">' + s.dose.per + '</span></div></section>';
+}
+
+function viewAdmin() {
+  return '<div class="block"><h2>Eczacı Yönetim Paneli</h2>' +
+    '<p class="fine">Bu alandan sisteme yeni takviye veya ilaç ekleyebilir, güncellemeler yapabilirsiniz.</p>' +
+    '<button class="btn full" data-a="add-new-supp-prompt" style="margin-top:10px;">+ Yeni Takviye Tanımla</button>' +
+    '<button class="btn ghost full" data-a="logout" style="margin-top:10px; color:var(--danger-ink);">Oturumu Kapat</button></div>';
+}
+
+function viewMine() {
+  var alerts = [];
+  INTERACTIONS.forEach(function(item) {
+    var hasA = mine.some(function(m){return m.id === item.a;}) || myDrugs.some(function(d){return d.id === item.a;});
+    var hasB = mine.some(function(m){return m.id === item.b;}) || myDrugs.some(function(d){return d.id === item.b;});
+    if (hasA && hasB) alerts.push(item.msg);
+  });
+
+  var alertHtml = alerts.map(function(msg){ return '<div class="alert-banner"><span>' + msg + '</span></div>'; }).join("");
+  
+  var suppItems = mine.map(function (m) {
+    var s = SUPPS[m.id]; if (!s) return "";
+    return '<div class="item"><div class="item-top"><div><h3>' + s.name + '</h3><div class="fine">Saat: ' + m.time + '</div></div>' +
+      '<button class="btn ghost small" data-a="remove-supp" data-id="' + m.id + '">Çıkar</button></div>' +
+      '<label class="check-row"><input type="checkbox" data-a="toggle-done-supp" data-id="' + m.id + '" ' + (m.done ? "checked" : "") + '> Bugün Aldım</label></div>';
+  }).join("");
+
+  var drugItems = myDrugs.map(function (d) {
+    var dr = DRUGS[d.id]; if (!dr) return "";
+    return '<div class="item" style="border-left:4px solid var(--accent);"><div class="item-top"><div><h3>' + dr.name + '</h3><div class="fine">' + dr.group + ' · Saat: ' + d.time + '</div></div>' +
+      '<button class="btn ghost small" data-a="remove-drug" data-id="' + d.id + '">Çıkar</button></div>' +
+      '<label class="check-row"><input type="checkbox" data-a="toggle-done-drug" data-id="' + d.id + '" ' + (d.done ? "checked" : "") + '> Bugün Aldım</label></div>';
+  }).join("");
+
+  return alertHtml +
+    '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+    '<p class="sub">Kullandıklarınız:</p><button class="btn small" data-a="open-drug-sheet">+ İlaç Ekle</button></div>' +
+    '<div class="list">' + suppItems + drugItems + '</div>' +
+    '<div style="margin-top:20px; text-align:center;"><button class="btn ghost small" data-a="logout">Çıkış Yap (' + (currentUser ? currentUser.email : '') + ')</button></div>';
+}
+
+function renderBar() {
+  if (state.view === "login" || state.view === "admin") return;
+  if (state.view === "detail" && state.tab === "discover") {
+    var m = mine.find(function(x){return x.id === state.supp;});
+    $bar.innerHTML = '<button class="btn full" data-a="start" data-id="' + state.supp + '">' +
+      (m ? "Listenizde Ekli (Saati Değiştir)" : "Kullanmaya Başla (Listeme Ekle)") + '</button>';
+    return;
+  }
+  var totalBadge = mine.length + myDrugs.length;
+  $bar.innerHTML =
+    '<button class="tab" data-a="tab" data-id="discover"' + (state.tab === "discover" ? ' aria-current="page"' : "") + '>' + ICON.search + 'Keşfet</button>' +
+    '<button class="tab" data-a="tab" data-id="mine"' + (state.tab === "mine" ? ' aria-current="page"' : "") + '>' + ICON.pill + 'Kullandıklarım' + (totalBadge ? '<span class="badge">' + totalBadge + '</span>' : "") + '</button>';
+}
+
+function render(scroll) {
+  if (state.view === "login") {
+    $top.innerHTML = '';
+    $app.innerHTML = viewLogin();
+    document.getElementById("bar").hidden = true;
+    return;
+  }
+  renderTop();
+  if (state.view === "admin") { $app.innerHTML = viewAdmin(); }
+  else { $app.innerHTML = state.tab === "mine" ? viewMine() : state.view === "home" ? viewHome() : viewDetail(); }
+  renderBar();
+  if (scroll) window.scrollTo(0, 0);
+
+  var inp = document.getElementById("search-input");
+  if (inp) {
+    inp.addEventListener("input", function (e) {
+      state.search = e.target.value;
+      $app.innerHTML = viewHome();
+    });
+  }
+}
+
+function toast(msg) {
+  $toast.textContent = msg; $toast.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(function () { $toast.hidden = true; }, 2800);
+}
+
+function openSheet(id) {
+  var s = SUPPS[id], m = mine.find(function(x){return x.id===id;});
+  $sheet.dataset.id = id;
+  $sheet.innerHTML = '<div class="sheet-in"><h2>Hatırlatma Saati</h2>' +
+    '<p class="fine">' + s.name + '</p>' +
+    '<input type="time" id="sheet-time" value="' + (m ? m.time : "09:00") + '">' +
+    '<button class="btn full" data-a="save-supp">Kaydet</button>' +
+    '<button class="btn ghost full" data-a="close">Vazgeç</button></div>';
+  $sheet.hidden = false;
+}
+
+function openDrugSheet() {
+  var drugListHtml = Object.keys(DRUGS).map(function(k) {
+    var d = DRUGS[k];
+    return '<button class="card" data-a="add-drug-item" data-id="' + k + '" style="padding:10px 14px; margin-bottom:6px;">' +
+      '<div><h3 style="font-size:16px;">' + d.name + '</h3><p class="fine">' + d.desc + '</p></div><span class="btn small">Ekle</span></button>';
+  }).join("");
+  $sheet.innerHTML = '<div class="sheet-in"><h2>İlaç Seç</h2><div style="max-height:250px; overflow-y:auto;">' + drugListHtml + '</div>' +
+    '<button class="btn ghost full" data-a="close">Kapat</button></div>';
+  $sheet.hidden = false;
+}
+
+function openDrugTimeSheet(did) {
+  $sheet.dataset.drugid = did;
+  $sheet.innerHTML = '<div class="sheet-in"><h2>İlaç Saati</h2><input type="time" id="drug-sheet-time" value="08:00">' +
+    '<button class="btn full" data-a="save-drug">Kaydet</button></div>';
+  $sheet.hidden = false;
+}
+
+document.addEventListener("click", function (e) {
+  if (e.target === $sheet) { $sheet.hidden = true; return; }
+  var el = e.target.closest("[data-a]"); if (!el) return;
+  var a = el.dataset.a, id = el.dataset.id;
+
+  if (a === "do-login" || a === "do-register") {
+    var email = document.getElementById("log-email").value;
+    var pass = document.getElementById("log-pass").value;
+    if(!email || !pass) { document.getElementById("log-err").textContent = "E-posta ve şifre giriniz."; return; }
+    
+    if (typeof auth !== "undefined") {
+      var promise = (a === "do-login") ? auth.signInWithEmailAndPassword(email, pass) : auth.createUserWithEmailAndPassword(email, pass);
+      promise.catch(function(err){ document.getElementById("log-err").textContent = err.message; });
+    } else {
+      currentUser = { email: email, uid: "guest_123" };
+      state.view = "home";
+      document.getElementById("bar").hidden = false;
+      loadUserData();
+    }
+  }
+  else if (a === "logout") {
+    if (typeof auth !== "undefined") { auth.signOut(); }
+    currentUser = null; state.view = "login"; document.getElementById("bar").hidden = true; render();
+  }
+  else if (a === "go-admin") { state.view = "admin"; render(true); }
+  else if (a === "supp") { state.supp = id; state.view = "detail"; render(true); }
+  else if (a === "back") { state.view = (state.view === "admin") ? "home" : "home"; render(true); }
+  else if (a === "tab") { state.tab = id; if(id==='discover') state.view='home'; render(true); }
+  else if (a === "start") { openSheet(id); }
+  else if (a === "open-drug-sheet") { openDrugSheet(); }
+  else if (a === "add-drug-item") { openDrugTimeSheet(id); }
+  else if (a === "close") { $sheet.hidden = true; }
+  else if (a === "save-supp") {
+    var v = document.getElementById("sheet-time").value, sid = $sheet.dataset.id;
+    var m = mine.find(function(x){return x.id===sid;});
+    if (m) m.time = v; else mine.push({ id: sid, time: v, done: false });
+    saveUserData(); $sheet.hidden = true; render(false); toast("Kaydedildi.");
+  }
+  else if (a === "save-drug") {
+    var v2 = document.getElementById("drug-sheet-time").value, did = $sheet.dataset.drugid;
+    var d = myDrugs.find(function(x){return x.id===did;});
+    if (d) d.time = v2; else myDrugs.push({ id: did, time: v2, done: false });
+    saveUserData(); $sheet.hidden = true; render(false); toast("İlaç eklendi.");
+  }
+  else if (a === "remove-supp") { mine = mine.filter(function(x){return x.id!==id;}); saveUserData(); render(false); }
+  else if (a === "remove-drug") { myDrugs = myDrugs.filter(function(x){return x.id!==id;}); saveUserData(); render(false); }
+  else if (a === "toggle-done-supp") { var m2 = mine.find(function(x){return x.id===id;}); if(m2){m2.done=e.target.checked; saveUserData();} }
+  else if (a === "toggle-done-drug") { var d2 = myDrugs.find(function(x){return x.id===id;}); if(d2){d2.done=e.target.checked; saveUserData();} }
+  else if (a === "add-new-supp-prompt") {
+    var sName = prompt("Yeni Takviye Adı:");
+    if(sName) {
+      var sKey = "new_" + Date.now();
+      SUPPS[sKey] = { name: sName, alt: "Özel Takviye", summary: "Admin tarafından eklendi.", ev: 3, evLabel: "Orta", who: ["Genel"], care: ["Doktora danışın."], does: ["Destek sağlar."], dose: { big: "1 Doz", per: "günde" }, timing: "Tok", sources: [] };
+      toast("Takviye başarıyla eklendi!");
+      state.view = "home"; render(true);
+    }
+  }
+});
+
+render(false);
+</script>
+</body>
+</html>
