@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Takviye & Yaşam Rehberi</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230B6B6F' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='9' width='16' height='6' rx='3' transform='rotate(-30 12 12)'/><path d='M12 8v8'/><path d='M8 12h8'/></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230B6B6F'><rect x='4' y='9' width='16' height='6' rx='3' transform='rotate(-30 12 12)'/><path d='M12 8v8' stroke='%23fff' stroke-width='2.2'/><path d='M8 12h8' stroke='%23fff' stroke-width='2.2'/></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Plus+Jakarta+Sans:wght@600;700;800&family=Source+Sans+3:wght@400;500;600&display=swap">
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+<style>
+html { -webkit-text-size-adjust: 100%; color-scheme: light dark; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+
+:root {
+  --bg: #F1F5F5;
+  --surface: #FFFFFF;
+  --surface-2: #E8EFEF;
+  --ink: #0F2A2E;
+  --muted: #4F6468;
+  --line: #D3DFE0;
+  --accent: #0B6B6F;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #D7ECEC;
+  --warn-bg: #FFF1DC;
+  --warn-ink: #6E3800;
+  --warn-line: #E6B56B;
+  --danger-bg: #FEE2E2;
+  --danger-ink: #991B1B;
+  --danger-line: #F87171;
+  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "Source Sans 3", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C1719; --surface: #132226; --surface-2: #1A2D31; --ink: #E4F0F0; --muted: #93AAAD;
+    --line: #243A3E; --accent: #5FC4C4; --accent-ink: #072022; --accent-soft: #17383B;
+    --warn-bg: #2B2012; --warn-ink: #F2C98A; --warn-line: #5C4520;
+    --danger-bg: #3B1212; --danger-ink: #FCA5A5; --danger-line: #7F1D1D;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.5;
+  padding-block: 0 100px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 500px; margin: 0 auto; min-width: 0; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; letter-spacing: -0.01em; }
+p, ul { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+
+.top {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg); display: flex; flex-direction: column; gap: 10px;
+  padding-block: 12px 10px; border-bottom: 1px solid var(--line);
+}
+.top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { font-family: var(--font-display); font-weight: 800; font-size: 20px; }
+.brand span { color: var(--accent); }
+.back {
+  width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line);
+  background: var(--surface); display: grid; place-items: center; flex: none;
+}
+.top-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; flex: 1; }
+
+.search-box { position: relative; width: 100%; display: flex; align-items: center; }
+.search-box input {
+  width: 100%; font-family: var(--font-body); font-size: 15px; padding: 10px 14px 10px 38px;
+  border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); outline: none;
+}
+.search-box input:focus { border-color: var(--accent); }
+.search-icon { position: absolute; left: 12px; color: var(--muted); pointer-events: none; display: flex; }
+
+.screen { display: flex; flex-direction: column; gap: 16px; padding-block: 12px; }
+
+.auth-tabs { display: flex; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+.auth-tab { flex: 1; padding: 10px; text-align: center; font-weight: 700; color: var(--muted); border-bottom: 2px solid transparent; }
+.auth-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.list { display: flex; flex-direction: column; gap: 10px; }
+.card {
+  width: 100%; text-align: left; border: 1px solid var(--line); background: var(--surface);
+  border-radius: 16px; padding: 14px 16px; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center;
+}
+.card h3 { font-size: 17px; color: var(--ink); }
+.card p { color: var(--muted); font-size: 13.5px; grid-column: 1; line-height: 1.35; }
+.card .go { grid-row: 1 / span 3; grid-column: 2; color: var(--muted); }
+.ev { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); font-weight: 500; }
+.meter { display: inline-flex; gap: 3px; }
+.meter i { width: 12px; height: 5px; border-radius: 3px; background: var(--line); display: block; }
+.meter i.on { background: var(--accent); }
+
+.hero { display: flex; flex-direction: column; gap: 4px; }
+.hero h1 { font-size: 24px; font-weight: 800; }
+.alt { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.block { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.block.warn { background: var(--warn-bg); border-color: var(--warn-line); color: var(--warn-ink); }
+.block.good { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.block h2 { font-size: 16px; font-weight: 700; }
+.block ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.block li { padding-left: 14px; position: relative; font-size: 14.5px; }
+.block li::before { content: ""; position: absolute; left: 0; top: 0.6em; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+.block.warn li::before { background: var(--warn-ink); }
+
+.dose { display: flex; align-items: baseline; gap: 8px; }
+.dose .big { font-family: var(--font-mono); font-weight: 700; font-size: 24px; color: var(--accent); }
+.dose .per { color: var(--muted); font-size: 13.5px; }
+
+.alert-banner {
+  background: var(--danger-bg); border: 1px solid var(--danger-line); color: var(--danger-ink);
+  border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 600;
+}
+
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.check-row { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14.5px; font-weight: 600; }
+.check-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+
+input[type="time"], input[type="text"], input[type="password"], input[type="email"], textarea, select {
+  font-family: var(--font-body); font-size: 15px; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink); outline: none; width: 100%;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+
+.btn {
+  border: 0; border-radius: 12px; min-height: 44px; padding: 0 16px; font-weight: 700; font-size: 15px;
+  background: var(--accent); color: var(--accent-ink); font-family: var(--font-display); display: inline-flex; align-items: center; justify-content: center;
+}
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn.danger { background: var(--danger-bg); color: var(--danger-ink); border: 1px solid var(--danger-line); }
+.btn.small { min-height: 34px; font-size: 13px; padding: 0 10px; border-radius: 8px; }
+.btn.full { width: 100%; }
+
+#bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding: 8px max(16px, env(safe-area-inset-left, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-right, 0px));
+}
+#bar .in { max-width: 500px; margin: 0 auto; display: flex; gap: 8px; }
+.tab {
+  flex: 1; border: 0; background: transparent; border-radius: 10px; min-height: 48px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px; font-size: 12px; font-weight: 600; color: var(--muted);
+}
+.tab[aria-current="page"] { color: var(--accent); background: var(--accent-soft); }
+.badge { background: var(--accent); color: var(--accent-ink); font-size: 11px; border-radius: 999px; padding: 1px 6px; margin-left: 4px; font-family: var(--font-mono); }
+
+#sheet { position: fixed; inset: 0; z-index: 40; background: rgba(6, 18, 20, 0.55); display: flex; align-items: flex-end; justify-content: center; }
+#sheet[hidden] { display: none !important; }
+.sheet-in {
+  width: 100%; max-width: 500px; background: var(--surface); border-radius: 20px 20px 0 0; border: 1px solid var(--line);
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; max-height: 80vh; overflow-y: auto;
+}
+#toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(76px + env(safe-area-inset-bottom, 0px)); z-index: 50;
+  background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 13.5px;
+  max-width: calc(100vw - 32px); text-align: center;
+}
+#toast[hidden] { display: none !important; }
+.fine { font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="top" class="top"></div>
+  <main id="app" class="screen"></main>
+</div>
+<div id="bar" hidden><div class="in" id="barin"></div></div>
+<div id="sheet" hidden></div>
+<div id="toast" role="status" hidden></div>
+
+<script>
+var firebaseConfig = {
+  apiKey: "AIzaSyBDglc3Z7VuGxGpxt7u43kk17aFxszAIeA",
+  authDomain: "trson1.firebaseapp.com",
+  projectId: "trson1",
+  storageBucket: "trson1.firebasestorage.app",
+  messagingSenderId: "311650569694",
+  appId: "1:311650569694:web:cdd29f6228930415e5614f",
+  measurementId: "G-88P46TXMLF"
+};
+
+try {
+  firebase.initializeApp(firebaseConfig);
+  var auth = firebase.auth();
+  var db = firebase.firestore();
+} catch (e) { console.log("Firebase başlatma hatası:", e); }
+
+var ADMIN_EMAIL = "furkiii4216@gmail.com";
+
+var DEFAULT_SUPPS = {
+  d3k2: { name: "D3 + K2 Vitamini", alt: "Kolekalsiferol + K2 (MK-7)", summary: "Kemik mineralizasyonu ve bağışıklık desteği.", ev: 4, evLabel: "Çok güçlü", who: ["Güneş görmeyenler", "Kemik ve diş sağlığını destekleyenler"], care: ["Yüksek doz kalsiyum birikimine dikkat edilmelidir."], does: ["Kalsiyumun kemiklere taşınmasını destekler."], dose: { big: "1000-2000 IU", per: "günde" } },
+  mg_bis: { name: "Magnezyum Bisglisinat", alt: "Glisin Şelat Magnezyum", summary: "Kas gevşemesi, sinir sistemi ve kaliteli uyku.", ev: 4, evLabel: "Çok güçlü", who: ["Kas krampları ve uyku sorunu yaşayanlar"], care: ["Böbrek rahatsızlığı olanlar uzmana danışmalıdır."], does: ["Gaba reseptörlerini uyararak rahatlama sağlar."], dose: { big: "200-400 mg", per: "akşam" } },
+  mg_cit: { name: "Magnezyum Sitrat", alt: "Sitrik Asit Magnezyum", summary: "Enerji metabolizması ve sindirim hareketliliği.", ev: 4, evLabel: "Çok güçlü", who: ["Kabızlık ve kas yorgunluğu çekenler"], care: ["Hassas bağırsaklarda ishale yol açabilir."], does: ["Kas fonksiyonunu düzenler, bağırsakları çalıştırır."], dose: { big: "200-300 mg", per: "günde" } },
+  mg_mal: { name: "Magnezyum Malat", alt: "Malik Asit Bağlı Magnezyum", summary: "Kas enerjisi ve kronik yorgunluk desteği.", ev: 3, evLabel: "Orta-Güçlü", who: ["Gün içinde enerjisi düşenler", "Fibromiyalji hastaları"], care: ["Uykusuzluk yapmaması için akşam alınmamalıdır."], dose: { big: "200-400 mg", per: "sabah/öğle" } },
+  omega3: { name: "Omega-3 (EPA/DHA)", alt: "Trigliserit Form Balık Yağı", summary: "Kalp-damar sağlığı, beyin ve göz desteği.", ev: 4, evLabel: "Çok güçlü", who: ["Balık tüketimi az olanlar", "Zihinsel odaklanma isteyenler"], care: ["Yüksek dozda kan sulandırıcı etki yapabilir."], does: ["Enflamasyonu baskılar, trigliserit seviyesini dengeler."], dose: { big: "1000-2000 mg", per: "günde" } },
+  b12_met: { name: "B12 Vitamini (Metilkobalamin)", alt: "Aktif Kobalamin Formu", summary: "Sinir sistemi, hafıza ve alyuvar oluşumu.", ev: 4, evLabel: "Çok güçlü", who: ["Unutkanlık yaşayanlar", "Vejetaryen ve veganlar"], care: ["Eksikliği doktor kontrolünde saptanmalıdır."], does: ["Miyelin kılıf yapımını ve enerji metabolizmasını destekler."], dose: { big: "1000 mcg", per: "günde / haftada" } },
+  coq10: { name: "Koenzim Q10 (Ubikinol)", alt: "Aktif CoQ10", summary: "Hücresel enerji üretimi ve kalp sağlığı.", ev: 3, evLabel: "Orta-Güçlü", who: ["Statin grubu ilaç kullananlar", "30 yaş üzeri bireyler"], care: ["Gece geç saatlerde uykusuzluk yapabilir."], does: ["Mitokondride ATP üretimini artırır."], dose: { big: "100-200 mg", per: "günde" } },
+  ala: { name: "Alfa Lipoik Asit (ALA)", alt: "R-ALA / Tioktik Asit", summary: "Evrensel antioksidan ve sinir desteği.", ev: 3, evLabel: "Orta-Güçlü", who: ["Nöropati şikayeti olanlar", "Glikoz dengesi arayanlar"], care: ["Aç karnına alınmalıdır, kan şekerini düşürebilir."], does: ["Suda ve yağda çözünerek hücreleri korur."], dose: { big: "300-600 mg", per: "günde" } },
+  creatine: { name: "Kreatin Monohidrat", alt: "Creatine Monohydrate", summary: "Kas kuvveti, patlayıcı güç ve zihinsel performans.", ev: 4, evLabel: "Çok güçlü", who: ["Spor yapanlar", "Kas kütlesi korumak isteyenler"], care: ["Böbrek sorunu olanlar doktoruna danışmalıdır."], does: ["Kas hücrelerinde ATP yenilenmesini hızlandırır."], dose: { big: "3-5 g", per: "günde" } },
+  ashwagandha: { name: "Ashwagandha (KSM-66)", alt: "Hint Lepidyumu / Withania Somnifera", summary: "Stres yönetimi, kortizol dengesi ve odaklanma.", ev: 3, evLabel: "Orta-Güçlü", who: ["Kronik stres yaşayanlar", "Anksiyete eğilimi olanlar"], care: ["Otoimmün rahatsızlığı olanlar dikkat etmelidir."], does: ["Kortizol seviyesini düşürerek adapte olmaya yardımcı olur."], dose: { big: "300-600 mg", per: "günde" } },
+  berberine: { name: "Berberin", alt: "Berberis Vulgaris Ekstresi", summary: "Kan şekeri dengesi ve metabolizma desteği.", ev: 3, evLabel: "Orta-Güçlü", who: ["İnsülin direnci olanlar", "Metabolik sağlık arayanlar"], care: ["Gastrointestinal rahatsızlık yapabilir."], does: ["AMPK enzimini aktive ederek glikoz kullanımını artırır."], dose: { big: "500 mg", per: "günde 2-3 kez" } },
+  curcumin: { name: "Kurkumin + Piperin", alt: "Zerdeçal Ekstresi", summary: "Güçlü anti-enflamatuar ve eklem desteği.", ev: 3, evLabel: "Orta-Güçlü", who: ["Eklem ağrısı olanlar", "Sistemik enflamasyon yaşayanlar"], care: ["Safra kesesi taşı olanlar uzmana danışmalıdır."], does: ["NF-kB yolaklarını baskılayarak enflamasyonu azaltır."], dose: { big: "500-1000 mg", per: "günde" } },
+  glutathione: { name: "Setria Glutatyon", alt: "L-Glutathione (Lipozomal)", summary: "Ana antioksidan, karaciğer detoksu ve cilt zindeliği.", ev: 3, evLabel: "Orta-Güçlü", who: ["Toksik yüke maruz kalanlar", "Cilt parlaklığı arayanlar"], care: ["Ağız yoluyla emilimi lipozomal formda yüksektir."], does: ["Serbest radikalleri nötralize eder, karaciğeri korur."], dose: { big: "250-500 mg", per: "günde" } },
+  nac: { name: "N-Asetil Sistein (NAC)", alt: "NAC", summary: "Glutatyon öncülü, solunum ve karaciğer desteği.", ev: 4, evLabel: "Çok güçlü", who: ["Solunum yolu hassasiyeti olanlar", "Karaciğer desteği arayanlar"], care: ["Mide ülseri olanlar dikkatli kullanmalıdır."], does: ["Mukusu inceltir, vücutta glutatyon sentezini artırır."], dose: { big: "600-1200 mg", per: "günde" } },
+  collagen13: { name: "Tip 1 & 3 Kolajen Peptitleri", alt: "Hidrolize Kolajen", summary: "Cilt esnekliği, saç, tırnak ve doku sağlığı.", ev: 3, evLabel: "Orta-Güçlü", who: ["Cilt yaşlanmasını geciktirmek isteyenler"], care: ["C Vitamini ile birlikte alınması önerilir."], does: ["Dermis tabakasının kollajen ağını destekler."], dose: { big: "5-10 g", per: "günde" } },
+  collagen2: { name: "Tip 2 Kolajen (Undenatured)", alt: "UC-II Kolajen", summary: "Kıkırdak doku ve eklem esnekliği.", ev: 3, evLabel: "Orta-Güçlü", who: ["Eklem aşınması ve kireçlenme yaşayanlar"], care: ["Aç karnına küçük dozlarda alınır."], does: ["Eklem kıkırdağının yıkımını engellemeye yardımcı olur."], dose: { big: "40 mg", per: "gece" } },
+  probiotics: { name: "Çoklu Suş Probiyotik", alt: "Lactobacillus & Bifidobacterium", summary: "Bağırsak florası, sindirim ve bağışıklık.", ev: 4, evLabel: "Çok güçlü", who: ["Antibiyotik kullananlar", "Sindirim düzensizliği çekenler"], care: ["Antibiyotikten en az 2 saat sonra alınmalıdır."], does: ["Mikrobiyota dengesini sağlayarak yararlı bakterileri artırır."], dose: { big: "5-10 Milyar KOB", per: "günde" } },
+  zinc_picolinate: { name: "Çinko Pikolinat", alt: "Zinc Picolinate", summary: "Bağışıklık, cilt iyileşmesi ve hormon dengesi.", ev: 4, evLabel: "Çok güçlü", who: ["Sık hastalananlar", "Akne problemi olanlar"], care: ["Bulantı yapmaması için tok karnına alınmalıdır."], does: ["200'den fazla enzimin fonksiyonunu destekler."], dose: { big: "15-30 mg", per: "günde" } },
+  vitamin_c: { name: "Ester-C Vitamini", alt: "Kalsiyum Askorbat / Lipozomal C", summary: "Antioksidan koruma ve kolajen sentezi.", ev: 4, evLabel: "Çok güçlü", who: ["Sigara içenler", "Bağışıklık desteği arayanlar"], care: ["Hassas midelerde ester formu tercih edilmelidir."], does: ["Serbest radikalleri temizler, nötrofil aktivitesini artırır."], dose: { big: "500-1000 mg", per: "günde" } },
+  iron_bisglycinate: { name: "Demir Bisglisinat", alt: "Mide Dostu Şelat Demir", summary: "Kansızlık, halsizlik ve oksijen taşınması.", ev: 4, evLabel: "Çok güçlü", who: ["Demir eksikliği anemisi olanlar"], care: ["Süt ve çay/kahve ile aynı anda alınmamalıdır."], does: ["Hemoglobin üretimine doğrudan katılır."], dose: { big: "17-30 mg", per: "aç karnına" } }
+};
+
+var suppListAdditional = [
+  ["Ginkgo Biloba", "Beyin kan akışı ve hafıza", 3, "120-240 mg"],
+  ["Ginseng (Panax)", "Fiziksel ve zihinsel zindelik", 3, "200-400 mg"],
+  ["Milk Thistle (Deve Dikeni)", "Karaciğer koruması ve silimarin", 3, "150-300 mg"],
+  ["Rhodiola Rosea", "Zihinsel yorgunluk ve adaptojen", 3, "200-500 mg"],
+  ["Passiflora (Çarkıfelek)", "Hafif uyku ve kaygı azaltıcı", 3, "200-400 mg"],
+  ["Quercetin", "Doğal antihistaminik ve antioksidan", 3, "500 mg"],
+  ["Resveratrol", "Hücresel gençleşme ve SIRT1", 3, "100-250 mg"],
+  ["Astaksantin", "Göz ve cilt için güçlü antioksidan", 3, "4-8 mg"],
+  ["L-Theanine", "Odaklanmış rahatlama (Çay özü)", 3, "100-200 mg"],
+  ["L-Carnitine", "Yağ asidi taşıyıcı ve enerji", 3, "1000-2000 mg"],
+  ["BCAA (2:1:1)", "Kas protein sentezi koruyucu", 3, "5-10 g"],
+  ["L-Arginine", "Nitrik oksit artışı ve damar genişliği", 3, "2000-5000 mg"],
+  ["L-Citrulline", "Egzersiz performansı ve kan akışı", 4, "3000-6000 mg"],
+  ["Beta-Alanine", "Kas karnozin seviyesi ve dayanıklılık", 4, "3-5 g"],
+  ["Glucosamine Chondroitin MSM", "Eklem kıkırdak matris desteği", 3, "1500 mg"],
+  ["Hyaluronic Acid", "Dokularda nem tutumu ve eklem kayganlığı", 3, "100-200 mg"],
+  ["Biotin (B7 Vitamini)", "Saç, tırnak ve cilt hücresi yapımı", 4, "2500-5000 mcg"],
+  ["Folic Acid (Methylfolate)", "DNA sentezi ve hücre bölünmesi", 4, "400 mcg"],
+  ["Selenium (L-Selenomethionine)", "Tiroid fonksiyonu ve antioksidan", 3, "100-200 mcg"],
+  ["Chromium Picolinate", "İnsülin duyarlılığı ve iştah baskılama", 3, "200 mcg"],
+  ["Melatonin", "Sirkadiyen ritim ve uykuya geçiş", 4, "1-3 mg"],
+  ["5-HTP", "Serotonin öncülü ve ruh hali", 2, "50-100 mg"],
+  ["Alpha GPC", "Asetilkolin artışı ve odaklanma", 3, "300-600 mg"],
+  ["Lion's Mane Mantarı", "Sinir büyüme faktörü (NGF) desteği", 3, "500-1000 mg"],
+  ["Cordyceps Mantarı", "Akciğer kapasitesi ve ATP desteği", 3, "500-1000 mg"],
+  ["Reishi Mantarı", "Bağışıklık modülasyonu ve huzur", 3, "500-1000 mg"],
+  ["Spirulina", "Mavi-yeşil alg protein ve demir kaynağı", 3, "1-3 g"],
+  ["Chlorella", "Ağır metal detoksu ve klorofil", 3, "1-3 g"],
+  ["Maca Kökü", "Hormon dengesi ve enerji", 3, "1500-3000 mg"],
+  ["Tribulus Terrestris", "Erkeklik hormonu desteği ve zindelik", 2, "500-1000 mg"],
+  ["Saw Palmetto (Cüce Palmiye)", "Prostat sağlığı ve DHT dengesi", 3, "160-320 mg"],
+  ["Cranberry (Turna Yemişi)", "İdrar yolu sağlığı (Proantosiyanidin)", 3, "500 mg"],
+  ["Bromelain", "Ananas enzimi, ödem ve sindirim", 3, "500 mg"],
+  ["Digestive Enzymes", "Proteaz, Lipaz, Amilaz sindirim kiti", 3, "1 Kapsül"],
+  ["Echinacea (Ekinezya)", "Üst solunum yolu koruması", 3, "300-500 mg"],
+  ["Elderberry (Kara Mürver)", "Viral enfeksiyon koruması", 3, "150-300 mg"],
+  ["Sorbitol & Inositol", "Polikistik over ve insülin dengesi", 3, "2000-4000 mg"],
+  ["Beta Glucan", "Akyuvar aktivasyonu ve bağışıklık", 3, "250-500 mg"],
+  ["Grape Seed Extract", "Proantasiyanidin ve damar esnekliği", 3, "100-300 mg"],
+  ["Green Tea Extract (EGCG)", "Metabolizma hızlandırıcı antioksidan", 3, "250-500 mg"],
+  ["L-Glutamine", "Bağırsak astarı tamiri ve kas koruma", 4, "5 g"],
+  ["L-Lysine", "Uçuk önleme ve kolajen yapımı", 3, "1000 mg"],
+  ["L-Tyrosine", "Dopamin ve tiroid hormonu öncülü", 3, "500 mg"],
+  ["L-Tryptophan", "Gece melatonine dönüşen aminoasit", 3, "500 mg"],
+  ["Taurine", "Kalp kası ve safra tuzu oluşumu", 3, "1000 mg"],
+  ["Choline (CDP-Choline)", "Karaciğer yağlanması ve beyin yapısı", 3, "250-500 mg"],
+  ["Inositol (Myo-Inositol)", "Hücre içi sinyal iletimi ve kadın sağlığı", 3, "2000 mg"],
+  ["Kalsiyum Sitrat", "Mide dostu kemik mineral desteği", 4, "500-1000 mg"],
+  ["Potasyum Sitrat", "Sıvı dengesi ve kas fonksiyonu", 3, "99 mg"],
+  ["Boron (Bor Minerali)", "Kemik sağlığı ve steroid hormon artışı", 3, "3-6 mg"],
+  ["Mangan Şelat", "Kıkırdak matris oluşumu", 3, "2 mg"],
+  ["Bakır Şelat", "Demir emilimi ve elastin yapımı", 3, "1-2 mg"],
+  ["Molibden", "Sülfit metabolizması enzimi", 3, "75 mcg"],
+  ["Vanadyum", "Glikoz tolerans faktörü desteği", 2, "100 mcg"],
+  ["A Vitamini (Retinol)", "Görme netliği ve mukoza zarı", 4, "3000 IU"],
+  ["E Vitamini (Tokoferol)", "Hücre zarı koruyucu antioksidan", 4, "200 IU"],
+  ["K1 Vitamini", "Kan pıhtılaşma mekanizması", 4, "100 mcg"],
+  ["B1 Vitamini (Tiamin)", "Karbonhidrat enerji dönüşümü", 4, "50 mg"],
+  ["B2 Vitamini (Riboflavin)", "Hücresel solunum ve göz sağlığı", 4, "50 mg"],
+  ["B3 Vitamini (Niasin)", "Kolesterol dengesi ve ATP", 4, "100 mg"],
+  ["B5 Vitamini (Pantotenik Asit)", "Böbrek üstü bezi ve hormon sentezi", 4, "100 mg"],
+  ["B6 Vitamini (P-5-P)", "Aminoasit metabolizması ve nörotransmiter", 4, "25 mg"],
+  ["B8 Vitamini", "Hücresel yağ metabolizması", 3, "100 mg"],
+  ["S-Adenozil Metiyonin (SAMe)", "Eklem ve duygudurum desteği", 3, "400 mg"],
+  ["Phosphatidylserine", "Hafıza kaybını önleyici fosfolipid", 3, "100 mg"],
+  ["Pycnogenol", "Çam kabuğu özü ve nitrik oksit", 3, "50 mg"],
+  ["Sulforaphane", "Brokoli filizi detoks enzimi", 3, "10 mg"],
+  ["Lutein & Zeaksantin", "Göz sarı nokta koruması", 4, "10 mg"],
+  ["Lycopene", "Prostat ve damar doku koruyucusu", 3, "10-20 mg"],
+  ["Citrus Bioflavonoids", "C vitamini emilim artırıcı", 3, "500 mg"],
+  ["Garlic Extract ( Allicin )", "Kan basıncı ve doğal antimikrobiyal", 3, "600 mg"],
+  ["Olive Leaf Extract", "Oleuropein ile tansiyon ve bağışıklık", 3, "500 mg"],
+  ["Oregano Oil (Kekik Yağı)", "Karvakrol ile bağırsağı temizleyici", 2, "100 mg"],
+  ["Berfokus B Kompleks", "Metilleşmiş B vitaminleri kombinasyonu", 4, "1 Kapsül"],
+  ["Multivitamin Adult", "Günlük mikro besin öğeleri kiti", 4, "1 Tablet"],
+  ["Prenatal Multivitamin", "Gelişim dönemi özel besin desteği", 4, "1 Tablet"],
+  ["Elderberry + C + Zinc", "Kış dönemi koruma üçlüsü", 4, "1 Efervesan"],
+  ["Joint Care Complex", "Eklem ve kıkırdak kombini", 3, "2 Tablet"],
+  ["Sleep Well Formula", "Melatonin, Passiflora, Valerian kiti", 3, "1 Kapsül"],
+  ["Detox Karaciğer Kiti", "Enginar, Deve dikeni, Karahindiba", 3, "1 Kapsül"],
+  ["Hair Skin Nail Matrix", "At kuyruğu, Kolajen, Biotin kiti", 3, "2 Tablet"],
+  ["Vision Support Complex", "Yaban mersini, Lutein, A vitamini", 3, "1 Kapsül"],
+  ["Menopause Balance", "Hayıt otu, İsoflavon kiti", 3, "1 Kapsül"],
+  ["Prostate Health Shield", "Cüce palmiye, Isırgan kökü", 3, "1 Kapsül"],
+  ["Vein Shield (Diosmin/Hesperidin)", "Bacak toplardamar sağlığı", 3, "500 mg"],
+  ["Caprylic Acid", "Mantar ve candida dengesi", 3, "600 mg"],
+  ["Apple Cider Vinegar Kapsül", "Mide asitliği ve sindirim düzenleyici", 2, "500 mg"],
+  ["MCT Oil", "Hızlı keton vücudu üretimi ve zihin", 3, "15 ml"],
+  ["Cod Liver Oil", "A ve D vitamini doğal balık karaciğeri yağı", 4, "5 ml"],
+  ["Krill Oil", "Fosfolipid yapıda Omega-3", 4, "500 mg"],
+  ["Evening Primrose Oil", "GLA içeriği ile hormon dengesi", 3, "1000 mg"],
+  ["Black Seed Oil (Çörekot Yağı)", "Timokinon ile bağışıklık düzenleme", 3, "1000 mg"],
+  ["Borage Oil", "En yüksek GLA içerikli sabit yağ", 3, "1000 mg"],
+  ["Wheat Germ Oil", "Doğal E vitamini kompleksi", 3, "1000 mg"],
+  ["Pumpkin Seed Oil", "Mesane ve prostat desteği", 3, "1000 mg"],
+  ["St. John's Wort (Sarı Kantaron)", "Hafif ruh hali dengesizlikleri", 3, "300 mg"],
+  ["Valerian Root (Kedi Otu)", "Derin uykuyu teşvik edici kök özü", 3, "400 mg"],
+  ["Holy Basil (Tulsi)", "Stres hormonları dengeleyici", 3, "500 mg"],
+  ["Gotu Kola", "Mikro dolaşım ve varis desteği", 3, "400 mg"],
+  ["Fenugreek (Çemen Otu)", "Laktasyon ve şeker dengesi", 3, "500 mg"],
+  ["Slippery Elm", "Mide astarı koruyucu müsilaj", 3, "400 mg"],
+  ["Marshmallow Root", "Boğaz ve mide koruyucu kök", 3, "400 mg"],
+  ["Bitter Melon (Kudret Narı)", "Mide yaraları ve kan şekeri", 2, "500 mg"]
+];
+
+suppListAdditional.forEach(function(item, idx) {
+  var id = "supp_gen_" + (idx + 1);
+  DEFAULT_SUPPS[id] = {
+    name: item[0],
+    alt: item[0] + " Özü",
+    summary: item[1],
+    ev: item[2],
+    evLabel: item[2] === 4 ? "Çok güçlü" : (item[2] === 3 ? "Orta-Güçlü" : "Sınırlı"),
+    who: ["Sağlıklı yaşamı desteklemek isteyenler"],
+    care: ["Doktorunuza veya eczacınıza danışınız."],
+    does: [item[1] + " amacıyla tercih edilir."],
+    dose: { big: item[3], per: "günde" }
+  };
+});
+
+var SUPPS = Object.assign({}, DEFAULT_SUPPS);
+
+var DRUGS = {
+  glifor: { name: "Glifor / Matofin (Metformin)", group: "Şeker Düzenleyici", desc: "Tip 2 diyabet ve insülin direnci tedavisi." },
+  euthyrox: { name: "Euthyrox / Levotiron (Levotiroksin)", group: "Tiroid Hormonu", desc: "Tiroid bezi yetmezliği (Hipotiroidi) tedavisi." },
+  kumadin: { name: "Kumadin (Varfarin)", group: "Antikoagülan", desc: "Kan pıhtılaşmasını önleyici ilaç." },
+  coraspin: { name: "Coraspin / Vasoplan (Aspirin 100mg)", group: "Antiplatelet", desc: "Kan sulandırıcı ve damar tıkacı önleyici." },
+  statin: { name: "Crestor / Lipitor (Atorvastatin/Rosuvastatin)", group: "Kolesterol İlacı", desc: "Kolesterol düşürücü statin grubu ilaç." },
+  ssri: { name: "Lustral / Cipralex (Sertralin/Essitalopram)", group: "Antidepresan (SSRI)", desc: "Depresyon ve anksiyete bozukluğu tedavisi." },
+  ace_inh: { name: "Delix / Kapril (Ramipril/Kaptopril)", group: "Tansiyon İlacı", desc: "Yüksek tansiyon ve kalp yetmezliği ilacı." },
+  diuretic: { name: "Lasix / Desal (Furosemid)", group: "Ödem Söktürücü", desc: "Vücuttan fazla sıvı atıcı diüretik." }
+};
+
+var INTERACTIONS = [
+  { a: "ala", b: "glifor", type: "danger", msg: "⚠️ Ciddi Risk: Alfa Lipoik Asit ile Metformin birlikte kullanıldığında kan şekeri aşırı düşebilir (Hipoglisemi)." },
+  { a: "mg_bis", b: "euthyrox", type: "warn", msg: "⚠️ Zamanlama Uyarısı: Magnezyum, Tiroid ilacının emilimini engeller. Aralarında en az 4 saat bırakılmalıdır." },
+  { a: "mg_cit", b: "euthyrox", type: "warn", msg: "⚠️ Zamanlama Uyarısı: Magnezyum, Tiroid ilacının emilimini engeller. Aralarında en az 4 saat bırakılmalıdır." },
+  { a: "mg_mal", b: "euthyrox", type: "warn", msg: "⚠️ Zamanlama Uyarısı: Magnezyum, Tiroid ilacının emilimini engeller. Aralarında en az 4 saat bırakılmalıdır." },
+  { a: "omega3", b: "kumadin", type: "danger", msg: "⚠️ Kanama Riski: Omega-3 yüksek dozda Varfarin ile etkileşip kanama riskini artırır." },
+  { a: "omega3", b: "coraspin", type: "warn", msg: "⚠️ Dikkat: Her iki ürün de kanı sulandırır, birlikte kullanımda morarma ve kanama takibi yapılmalıdır." },
+  { a: "coq10", b: "statin", type: "good_info", msg: "💡 Bilgi: Statin grubu ilaçlar vücuttaki CoQ10 seviyesini düşürür, CoQ10 takviyesi kas ağrılarını hafifletebilir." },
+  { a: "iron_bisglycinate", b: "euthyrox", type: "warn", msg: "⚠️ Zamanlama Uyarısı: Demir takviyesi tiroid ilacına bağlanır. Aralarında en az 4 saat bırakılmalıdır." }
+];
+
+var currentUser = null;
+var state = { view: "login", authMode: "login", tab: "discover", supp: null, search: "" };
+var mine = [];
+var myDrugs = [];
+
+function initCloudSync() {
+  if (typeof db === "undefined") return;
+  db.collection("supplements").onSnapshot(function(snapshot) {
+    snapshot.forEach(function(doc) {
+      SUPPS[doc.id] = doc.data();
+    });
+    render(false);
+  }, function(err) {
+    console.log("Canlı senkronizasyon hatası:", err);
+  });
+}
+
+if (typeof auth !== "undefined") {
+  auth.onAuthStateChanged(function(user) {
+    currentUser = user;
+    if (user) {
+      if (!user.emailVerified && user.email !== ADMIN_EMAIL) {
+        state.view = "verify_notice";
+        document.getElementById("bar").hidden = true;
+        render();
+        return;
+      }
+      state.view = "home";
+      document.getElementById("bar").hidden = false;
+      loadUserData();
+      initCloudSync();
+    } else {
+      state.view = "login";
+      document.getElementById("bar").hidden = true;
+      render();
+    }
+  });
+} else {
+  currentUser = { email: "misafir@kullanici.com" };
+  state.view = "home";
+  initCloudSync();
+}
+
+function loadUserData() {
+  if(!currentUser) return;
+  try {
+    mine = JSON.parse(localStorage.getItem("tk_mine_" + currentUser.uid) || "[]");
+    myDrugs = JSON.parse(localStorage.getItem("tk_drugs_" + currentUser.uid) || "[]");
+  } catch(e) { mine = []; myDrugs = []; }
+  render();
+}
+
+function saveUserData() {
+  if(!currentUser) return;
+  try {
+    localStorage.setItem("tk_mine_" + currentUser.uid, JSON.stringify(mine));
+    localStorage.setItem("tk_drugs_" + currentUser.uid, JSON.stringify(myDrugs));
+  } catch(e) {}
+}
+
+var $app = document.getElementById("app"), $top = document.getElementById("top"), $bar = document.getElementById("barin"),
+    $sheet = document.getElementById("sheet"), $toast = document.getElementById("toast"), toastT;
+
+var ICON = {
+  back: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  go: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>',
+  search: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+  pill: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="8.5" width="18" height="7" rx="3.5" transform="rotate(-35 12 12)"/><path d="M9.2 7.4l5.6 9.2" /></svg>',
+  logo: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="6" rx="3" transform="rotate(-30 12 12)"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>'
+};
+
+function meter(n) {
+  return '<span class="meter" aria-hidden="true">' + [1, 2, 3, 4].map(function (i) { return '<i class="' + (i <= n ? "on" : "") + '"></i>'; }).join("") + "</span>";
+}
+
+function renderTop() {
+  if (state.view === "login" || state.view === "verify_notice") { $top.innerHTML = ''; return; }
+  if (state.tab === "mine") {
+    $top.innerHTML = '<div class="top-row"><h1 class="brand">Kullandıklarım & <span>Etkileşim</span></h1></div>';
+    return;
+  }
+  if (state.view === "admin") {
+    $top.innerHTML = '<div class="top-row"><button class="back" data-a="back">' + ICON.back + '</button><div class="top-title">Yönetim Paneli</div></div>';
+    return;
+  }
+  if (state.view === "home") {
+    var adminBtn = (currentUser && currentUser.email === ADMIN_EMAIL) ? '<button class="btn small" data-a="go-admin">Yönetim</button>' : '';
+    $top.innerHTML = '<div class="top-row"><div class="brand">Takviye<span>Rehberi</span></div>' + adminBtn + '</div>' +
+      '<div class="search-box"><span class="search-icon">' + ICON.search + '</span>' +
+      '<input type="text" id="search-input" placeholder="120+ Takviye ve içerik ara..." value="' + state.search + '"></div>';
+    return;
+  }
+  var title = SUPPS[state.supp] ? SUPPS[state.supp].name : "";
+  $top.innerHTML = '<div class="top-row"><button class="back" data-a="back">' + ICON.back + '</button><div class="top-title">' + title + '</div></div>';
+}
+
+function viewLogin() {
+  var isReg = state.authMode === "register";
+  return '<div style="display:flex; flex-direction:column; align-items:center; text-align:center; margin-top:10px; gap:6px;">' +
+    '<div style="width:56px; height:56px; border-radius:18px; background:var(--accent-soft); color:var(--accent); display:grid; place-items:center;">' + ICON.logo + '</div>' +
+    '<h1 style="font-size:20px; font-weight:800;">Takviye & Yaşam Rehberi</h1>' +
+    '<p class="fine">Kişisel Takip ve Etkileşim Platformu</p>' +
+    '</div>' +
+    '<div class="block" style="margin-top:10px;">' +
+    '<div class="auth-tabs">' +
+    '<button class="auth-tab ' + (!isReg ? 'active' : '') + '" data-a="switch-auth" data-mode="login">Giriş Yap</button>' +
+    '<button class="auth-tab ' + (isReg ? 'active' : '') + '" data-a="switch-auth" data-mode="register">Kayıt Ol</button>' +
+    '</div>' +
+    '<div style="display:flex; flex-direction:column; gap:10px;">' +
+    '<div><label class="fine">E-posta Adresi</label><input type="email" id="log-email" placeholder="ornek@email.com"></div>' +
+    '<div><label class="fine">Şifre</label><input type="password" id="log-pass" placeholder="••••••••"></div>' +
+    (isReg ? '<div><label class="fine">Şifre Tekrarı</label><input type="password" id="log-pass2" placeholder="••••••••"></div>' : '') +
+    
+    (isReg ? '<div style="background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px; font-size:12.5px; color:var(--muted);">' +
+    '<strong>Yasal Uyarı:</strong> Bu platform bilgilendirme ve kişisel <strong>takip amaçlıdır</strong>. Tıbbi teşhis/tedavi içermez. İlaç ve takviye kullanmadan önce doktorunuza danışınız.' +
+    '</div>' +
+    '<label class="check-row" style="font-size:13px;"><input type="checkbox" id="legal-check"> Şartları okudum ve kabul ediyorum.</label>' : '') +
+
+    '<div id="log-err" style="color:var(--danger-ink); font-size:13.5px;"></div>' +
+    (!isReg ? 
+      '<button class="btn full" data-a="do-login">Oturum Aç</button>' : 
+      '<button class="btn full" data-a="do-register">Kayıt İşlemini Tamamla</button>') +
+    '</div></div>';
+}
+
+function viewVerifyNotice() {
+  return '<div class="block" style="text-align:center; margin-top:30px; padding:20px;">' +
+    '<div style="width:50px; height:50px; border-radius:50%; background:var(--warn-bg); color:var(--warn-ink); display:grid; place-items:center; margin:0 auto 10px auto; font-size:22px;">✉️</div>' +
+    '<h2>E-posta Doğrulaması Gerekli</h2>' +
+    '<p class="fine" style="margin-top:6px;">Hesabınızı aktif etmek için e-posta adresinize gönderdiğimiz doğrulama bağlantısına tıklayın.</p>' +
+    '<button class="btn full" data-a="resend-verify" style="margin-top:14px;">Tekrar Doğrulama Maili Gönder</button>' +
+    '<button class="btn ghost full" data-a="logout" style="margin-top:8px;">Çıkış Yap</button>' +
+    '</div>';
+}
+
+function viewHome() {
+  var keys = Object.keys(SUPPS);
+  if (state.search.trim() !== "") {
+    var q = state.search.toLowerCase();
+    keys = keys.filter(function (k) {
+      var s = SUPPS[k];
+      return s.name.toLowerCase().indexOf(q) !== -1 || (s.summary && s.summary.toLowerCase().indexOf(q) !== -1);
+    });
+  }
+  var items = keys.map(function (id) {
+    var s = SUPPS[id];
+    return '<button class="card" data-a="supp" data-id="' + id + '">' +
+      '<div><h3>' + s.name + '</h3><p>' + (s.summary || "Takviye rehberi verisi.") + '</p><span class="ev">' + meter(s.ev || 3) + (s.evLabel || "Orta") + '</span></div>' +
+      '<span class="go">' + ICON.go + '</span></button>';
+  }).join("");
+  return '<div class="list">' + items + '</div>';
+}
+
+function viewDetail() {
+  var s = SUPPS[state.supp]; if (!s) return "";
+  return '<div class="hero"><h1>' + s.name + '</h1><div class="alt">' + (s.alt || "") + '</div><span class="ev">' + meter(s.ev || 3) + (s.evLabel || "") + '</span></div>' +
+    '<section class="block good"><h2>Kimler Tercih Edebilir?</h2><ul>' + (s.who || ["Genel yaşam desteği"]).map(function(t){return '<li>'+t+'</li>';}).join("") + '</ul></section>' +
+    '<section class="block warn"><h2>Dikkat Edilmesi Gerekenler</h2><ul>' + (s.care || ["Uzmanınıza danışınız."]).map(function(t){return '<li>'+t+'</li>';}).join("") + '</ul></section>' +
+    '<section class="block"><h2>Öne Çıkan Faydaları</h2><ul>' + (s.does || ["Sağlıklı yaşamı destekler."]).map(function(t){return '<li>'+t+'</li>';}).join("") + '</ul></section>' +
+    '<section class="block"><h2>Kullanım Miktarı</h2><div class="dose"><span class="big">' + (s.dose ? s.dose.big : "1 Doz") + '</span><span class="per">' + (s.dose ? s.dose.per : "günde") + '</span></div></section>';
+}
+
+function viewAdmin() {
+  var cloudKeys = Object.keys(SUPPS);
+  var listHtml = cloudKeys.map(function(k) {
+    return '<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--line); font-size:14px;">' +
+      '<span>' + SUPPS[k].name + '</span>' +
+      '<button class="btn danger small" data-a="delete-cloud-supp" data-id="' + k + '">Sil</button>' +
+      '</div>';
+  }).join("");
+
+  return '<div class="block"><h2>Yeni Takviye Ekle</h2>' +
+    '<div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">' +
+    '<div><label class="fine">Takviye Adı</label><input type="text" id="adm-name" placeholder="Örn: Berberin 500mg"></div>' +
+    '<div><label class="fine">Alternatif Adı</label><input type="text" id="adm-alt" placeholder="Örn: Berberis Vulgaris"></div>' +
+    '<div><label class="fine">Özet Açıklama</label><input type="text" id="adm-summary" placeholder="Örn: Kan şekeri ve metabolizma desteği."></div>' +
+    '<div><label class="fine">Kanıt Düzeyi (1-4)</label><select id="adm-ev"><option value="4">4 - Çok Güçlü</option><option value="3" selected>3 - Orta-Güçlü</option><option value="2">2 - Sınırlı</option></select></div>' +
+    '<div><label class="fine">Doz Miktarı</label><input type="text" id="adm-dose-big" placeholder="Örn: 500 mg"></div>' +
+    '<button class="btn full" data-a="save-new-supp" style="margin-top:4px;">Buluta Kaydet ve Tüm Kullanıcılara Yayınla</button>' +
+    '</div></div>' +
+    '<div class="block" style="margin-top:12px;"><h2>Mevcut Takviye Yönetimi</h2>' +
+    '<div style="max-height:200px; overflow-y:auto; margin-top:6px;">' + listHtml + '</div></div>';
+}
+
+function viewMine() {
+  var alerts = [];
+  INTERACTIONS.forEach(function(item) {
+    var hasA = mine.some(function(m){return m.id === item.a;}) || myDrugs.some(function(d){return d.id === item.a;});
+    var hasB = mine.some(function(m){return m.id === item.b;}) || myDrugs.some(function(d){return d.id === item.b;});
+    if (hasA && hasB) alerts.push(item.msg);
+  });
+
+  var alertHtml = alerts.map(function(msg){ return '<div class="alert-banner"><span>' + msg + '</span></div>'; }).join("");
+  
+  var suppItems = mine.map(function (m) {
+    var s = SUPPS[m.id]; if (!s) return "";
+    return '<div class="item"><div class="item-top"><div><h3>' + s.name + '</h3><div class="fine">Hatırlatma: ' + m.time + '</div></div>' +
+      '<button class="btn ghost small" data-a="remove-supp" data-id="' + m.id + '">Çıkar</button></div>' +
+      '<label class="check-row"><input type="checkbox" data-a="toggle-done-supp" data-id="' + m.id + '" ' + (m.done ? "checked" : "") + '> Bugün Aldım</label></div>';
+  }).join("");
+
+  var drugItems = myDrugs.map(function (d) {
+    var dr = DRUGS[d.id]; if (!dr) return "";
+    return '<div class="item" style="border-left:4px solid var(--accent);"><div class="item-top"><div><h3>' + dr.name + '</h3><div class="fine">' + dr.group + ' · Saat: ' + d.time + '</div></div>' +
+      '<button class="btn ghost small" data-a="remove-drug" data-id="' + d.id + '">Çıkar</button></div>' +
+      '<label class="check-row"><input type="checkbox" data-a="toggle-done-drug" data-id="' + d.id + '" ' + (d.done ? "checked" : "") + '> Bugün Aldım</label></div>';
+  }).join("");
+
+  return alertHtml +
+    '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+    '<p style="font-weight:700;">Günlük Rutinim:</p><button class="btn small" data-a="open-drug-sheet">+ İlaç / Etken Madde Ekle</button></div>' +
+    '<div class="list">' + suppItems + drugItems + '</div>' +
+    '<div style="margin-top:16px; text-align:center;"><button class="btn ghost small" data-a="logout">Oturumu Kapat (' + (currentUser ? currentUser.email : '') + ')</button></div>';
+}
+
+function renderBar() {
+  if (state.view === "login" || state.view === "admin" || state.view === "verify_notice") return;
+  if (state.view === "detail" && state.tab === "discover") {
+    var m = mine.find(function(x){return x.id === state.supp;});
+    $bar.innerHTML = '<button class="btn full" data-a="start" data-id="' + state.supp + '">' +
+      (m ? "Listede Ekli (Saati Güncelle)" : "Rutinime Ekle") + '</button>';
+    return;
+  }
+  var totalBadge = mine.length + myDrugs.length;
+  $bar.innerHTML =
+    '<button class="tab" data-a="tab" data-id="discover"' + (state.tab === "discover" ? ' aria-current="page"' : "") + '>' + ICON.search + 'Keşfet</button>' +
+    '<button class="tab" data-a="tab" data-id="mine"' + (state.tab === "mine" ? ' aria-current="page"' : "") + '>' + ICON.pill + 'Kullandıklarım' + (totalBadge ? '<span class="badge">' + totalBadge + '</span>' : "") + '</button>';
+}
+
+function render(scroll) {
+  if (state.view === "login") { $top.innerHTML = ''; $app.innerHTML = viewLogin(); document.getElementById("bar").hidden = true; return; }
+  if (state.view === "verify_notice") { $top.innerHTML = ''; $app.innerHTML = viewVerifyNotice(); document.getElementById("bar").hidden = true; return; }
+  renderTop();
+  if (state.view === "admin") { $app.innerHTML = viewAdmin(); }
+  else { $app.innerHTML = state.tab === "mine" ? viewMine() : state.view === "home" ? viewHome() : viewDetail(); }
+  renderBar();
+  if (scroll) window.scrollTo(0, 0);
+
+  var inp = document.getElementById("search-input");
+  if (inp) {
+    inp.addEventListener("input", function (e) {
+      state.search = e.target.value;
+      $app.innerHTML = viewHome();
+    });
+  }
+}
+
+function toast(msg) {
+  $toast.textContent = msg; $toast.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(function () { $toast.hidden = true; }, 2600);
+}
+
+function openSheet(id) {
+  var s = SUPPS[id], m = mine.find(function(x){return x.id===id;});
+  $sheet.dataset.id = id;
+  $sheet.innerHTML = '<div class="sheet-in"><h2>Hatırlatma Saati Ayarla</h2>' +
+    '<p class="fine">' + (s ? s.name : "") + '</p>' +
+    '<input type="time" id="sheet-time" value="' + (m ? m.time : "09:00") + '">' +
+    '<button class="btn full" data-a="save-supp">Kaydet</button>' +
+    '<button class="btn ghost full" data-a="close">Vazgeç</button></div>';
+  $sheet.hidden = false;
+}
+
+function openDrugSheet() {
+  var drugListHtml = Object.keys(DRUGS).map(function(k) {
+    var d = DRUGS[k];
+    return '<button class="card" data-a="add-drug-item" data-id="' + k + '" style="padding:10px 12px; margin-bottom:4px;">' +
+      '<div><h3 style="font-size:15px;">' + d.name + '</h3><p class="fine">' + d.desc + '</p></div><span class="btn small">Ekle</span></button>';
+  }).join("");
+  $sheet.innerHTML = '<div class="sheet-in"><h2>İlaç veya Etken Madde Seç</h2><div style="max-height:240px; overflow-y:auto;">' + drugListHtml + '</div>' +
+    '<button class="btn ghost full" data-a="close">Kapat</button></div>';
+  $sheet.hidden = false;
+}
+
+function openDrugTimeSheet(did) {
+  $sheet.dataset.drugid = did;
+  $sheet.innerHTML = '<div class="sheet-in"><h2>İlaç Kullanım Saati</h2><input type="time" id="drug-sheet-time" value="08:00">' +
+    '<button class="btn full" data-a="save-drug">Kaydet</button></div>';
+  $sheet.hidden = false;
+}
+
+document.addEventListener("click", function (e) {
+  if (e.target === $sheet) { $sheet.hidden = true; return; }
+  var el = e.target.closest("[data-a]"); if (!el) return;
+  var a = el.dataset.a, id = el.dataset.id;
+
+  if (a === "switch-auth") { state.authMode = el.dataset.mode; render(false); }
+  else if (a === "do-login" || a === "do-register") {
+    var email = document.getElementById("log-email").value;
+    var pass = document.getElementById("log-pass").value;
+
+    if(!email || !pass) { document.getElementById("log-err").textContent = "Lütfen alanları doldurunuz."; return; }
+    
+    if (a === "do-register") {
+      var pass2 = document.getElementById("log-pass2").value;
+      var legalChecked = document.getElementById("legal-check").checked;
+      if (pass !== pass2) { document.getElementById("log-err").textContent = "Şifreler birbiriyle eşleşmiyor."; return; }
+      if (!legalChecked) { document.getElementById("log-err").textContent = "Lütfen yasal bilgilendirmeyi onaylayınız."; return; }
+
+      auth.createUserWithEmailAndPassword(email, pass).then(function(cred) {
+        cred.user.sendEmailVerification().then(function() { toast("Doğrulama maili gönderildi!"); });
+      }).catch(function(err){ document.getElementById("log-err").textContent = err.message; });
+    } else {
+      auth.signInWithEmailAndPassword(email, pass).catch(function(err){ document.getElementById("log-err").textContent = err.message; });
+    }
+  }
+  else if (a === "resend-verify") {
+    if (auth && auth.currentUser) {
+      auth.currentUser.sendEmailVerification().then(function() { toast("Doğrulama bağlantısı iletildi."); });
+    }
+  }
+  else if (a === "logout") {
+    if (typeof auth !== "undefined") { auth.signOut(); }
+    currentUser = null; state.view = "login"; document.getElementById("bar").hidden = true; render();
+  }
+  else if (a === "go-admin") { state.view = "admin"; render(true); }
+  else if (a === "supp") { state.supp = id; state.view = "detail"; render(true); }
+  else if (a === "back") { state.view = "home"; render(true); }
+  else if (a === "tab") { state.tab = id; if(id==='discover') state.view='home'; render(true); }
+  else if (a === "start") { openSheet(id); }
+  else if (a === "open-drug-sheet") { openDrugSheet(); }
+  else if (a === "add-drug-item") { openDrugTimeSheet(id); }
+  else if (a === "close") { $sheet.hidden = true; }
+  else if (a === "save-supp") {
+    var v = document.getElementById("sheet-time").value, sid = $sheet.dataset.id;
+    var m = mine.find(function(x){return x.id===sid;});
+    if (m) m.time = v; else mine.push({ id: sid, time: v, done: false });
+    saveUserData(); $sheet.hidden = true; render(false); toast("Listeye eklendi.");
+  }
+  else if (a === "save-drug") {
+    var v2 = document.getElementById("drug-sheet-time").value, did = $sheet.dataset.drugid;
+    var d = myDrugs.find(function(x){return x.id===did;});
+    if (d) d.time = v2; else myDrugs.push({ id: did, time: v2, done: false });
+    saveUserData(); $sheet.hidden = true; render(false); toast("İlaç eklendi.");
+  }
+  else if (a === "remove-supp") { mine = mine.filter(function(x){return x.id!==id;}); saveUserData(); render(false); }
+  else if (a === "remove-drug") { myDrugs = myDrugs.filter(function(x){return x.id!==id;}); saveUserData(); render(false); }
+  else if (a === "toggle-done-supp") { var m2 = mine.find(function(x){return x.id===id;}); if(m2){m2.done=e.target.checked; saveUserData();} }
+  else if (a === "toggle-done-drug") { var d2 = myDrugs.find(function(x){return x.id===id;}); if(d2){d2.done=e.target.checked; saveUserData();} }
+  else if (a === "save-new-supp") {
+    var sName = document.getElementById("adm-name").value;
+    if(!sName) { alert("Lütfen takviye adı giriniz."); return; }
+    var sAlt = document.getElementById("adm-alt").value || "Özel Formül";
+    var sSummary = document.getElementById("adm-summary").value || "Kişiselleştirilmiş destek ürünü.";
+    var sEv = parseInt(document.getElementById("adm-ev").value) || 3;
+    var sDoseBig = document.getElementById("adm-dose-big").value || "1 Doz";
+
+    var sKey = "supp_custom_" + Date.now();
+    var newSuppData = {
+      name: sName, alt: sAlt, summary: sSummary, ev: sEv,
+      evLabel: sEv === 4 ? "Çok güçlü" : "Orta-Güçlü",
+      who: ["Genel yaşam kalitesini artırmak isteyenler"],
+      care: ["Aksini belirtmedikçe uzman önerisiyle kullanılmalıdır."],
+      does: ["Metabolik süreçleri destekler."],
+      dose: { big: sDoseBig, per: "günde" }
+    };
+
+    if (typeof db !== "undefined") {
+      db.collection("supplements").doc(sKey).set(newSuppData).then(function() {
+        toast("Başarıyla veritabanına kaydedildi!");
+        state.view = "home"; render(true);
+      }).catch(function(error) { alert("Bulut kayıt hatası: " + error.message); });
+    }
+  }
+  else if (a === "delete-cloud-supp") {
+    if (confirm("Bu takviyeyi veritabanından silmek istediğinize emin misiniz?")) {
+      if (typeof db !== "undefined") {
+        db.collection("supplements").doc(id).delete().then(function() {
+          delete SUPPS[id];
+          toast("Takviye silindi.");
+          render(false);
+        });
+      }
+    }
+  }
+});
+
+render(false);
+</script>
+</body>
+</html>
