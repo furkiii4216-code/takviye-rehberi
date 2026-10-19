@@ -1,0 +1,65 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Yonetici: sadece dogrulanmis bu e-posta
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email == 'furkiii4216@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    // Takviye icerikleri: giris yapan herkes okur, sadece yonetici yazar
+    match /supplements/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // Duyurular: giris yapan herkes okur, sadece yonetici yazar
+    match /announcements/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // Kullanici profili: sadece sahibi okuyup yazar
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['username', 'photoUrl', 'email', 'username_lowercase'])
+        && (!('username' in request.resource.data)
+            || (request.resource.data.username is string
+                && request.resource.data.username.matches('^[a-z0-9_]{3,20}$')))
+        && (!('photoUrl' in request.resource.data)
+            || (request.resource.data.photoUrl is string
+                && request.resource.data.photoUrl.size() < 200000));
+      allow delete: if false;
+    }
+
+    // Kullanici adi rezervasyonu: herkes tek tek sorgulayabilir (liste yok), sadece uid tutar
+    match /usernames/{name} {
+      allow get: if true;
+      allow list: if false;
+      allow create: if signedIn()
+        && name.matches('^[a-z0-9_]{3,20}$')
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // Bildirim tokenlari: sadece sahibi yazar/okur (Cloud Function admin yetkisiyle okur)
+    match /fcm_tokens/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Digerleri kapali
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "appId": "com.furkan.takviye",
+  "appName": "Takviye Rehberi",
+  "webDir": "www",
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  }
+}
