@@ -38,4 +38,20 @@ jobs:
       - name: Bildirim iznini manifeste ekle
         run: |
           M=android/app/src/main/AndroidManifest.xml
-          grep -q POST_NOTIFICATIONS "$M" || sed -i '
+          LINE='<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />'
+          grep -q POST_NOTIFICATIONS "$M" || sed -i "s|<application|${LINE}<application|" "$M"
+
+      - name: Senkronize et
+        run: npx cap sync android
+
+      - name: APK derle
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: APK'yi yukle
+        uses: actions/upload-artifact@v4
+        with:
+          name: takviye-rehberi-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
