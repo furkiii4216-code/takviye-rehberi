@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Takviye Rehberi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Plus+Jakarta+Sans:wght@600;700;800&family=Source+Sans+3:wght@400;500;600&display=swap">
+<style>
+html { -webkit-text-size-adjust: 100%; color-scheme: light; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+
+:root {
+  --bg: #F1F5F5;
+  --surface: #FFFFFF;
+  --surface-2: #E8EFEF;
+  --ink: #0F2A2E;
+  --muted: #4F6468;
+  --line: #D3DFE0;
+  --accent: #0B6B6F;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #D7ECEC;
+  --warn-bg: #FFF1DC;
+  --warn-ink: #6E3800;
+  --warn-line: #E6B56B;
+  --gap-bg: #EEF0F7;
+  --gap-ink: #3A4470;
+  --font-display: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-body: "Source Sans 3", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C1719; --surface: #132226; --surface-2: #1A2D31; --ink: #E4F0F0; --muted: #93AAAD;
+    --line: #243A3E; --accent: #5FC4C4; --accent-ink: #072022; --accent-soft: #17383B;
+    --warn-bg: #2B2012; --warn-ink: #F2C98A; --warn-line: #5C4520;
+    --gap-bg: #1C2036; --gap-ink: #B9C2F0;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.5;
+  padding-block: 0 112px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 480px; margin: 0 auto; min-width: 0; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; letter-spacing: -0.01em; }
+p, ul, ol { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+/* Header & Search */
+.top {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg); display: flex; flex-direction: column; gap: 10px;
+  padding-block: 12px 10px; border-bottom: 1px solid var(--line);
+}
+.top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { font-family: var(--font-display); font-weight: 800; font-size: 20px; }
+.brand span { color: var(--accent); }
+.back {
+  width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line);
+  background: var(--surface); display: grid; place-items: center; flex: none;
+}
+.top-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; flex: 1; }
+
+.search-box {
+  position: relative; width: 100%; display: flex; align-items: center;
+}
+.search-box input {
+  width: 100%; font-family: var(--font-body); font-size: 16px; padding: 10px 14px 10px 38px;
+  border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  outline: none; transition: border-color 0.2s;
+}
+.search-box input:focus { border-color: var(--accent); }
+.search-icon { position: absolute; left: 12px; color: var(--muted); pointer-events: none; display: flex; }
+
+.screen { display: flex; flex-direction: column; gap: 16px; padding-block: 12px; }
+
+/* Supplement List Cards */
+.list { display: flex; flex-direction: column; gap: 12px; }
+.card {
+  width: 100%; text-align: left; border: 1px solid var(--line); background: var(--surface);
+  border-radius: 18px; padding: 16px; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center;
+}
+.card h3 { font-size: 18px; color: var(--ink); }
+.card p { color: var(--muted); font-size: 14.5px; grid-column: 1; line-height: 1.35; }
+.card .go { grid-row: 1 / span 3; grid-column: 2; color: var(--muted); }
+.ev { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--muted); font-weight: 500; }
+.meter { display: inline-flex; gap: 3px; }
+.meter i { width: 14px; height: 5px; border-radius: 3px; background: var(--line); display: block; }
+.meter i.on { background: var(--accent); }
+
+/* Detail Page */
+.hero { display: flex; flex-direction: column; gap: 6px; }
+.hero h1 { font-size: 26px; font-weight: 800; }
+.alt { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.block { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.block.warn { background: var(--warn-bg); border-color: var(--warn-line); color: var(--warn-ink); }
+.block.good { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.block h2 { font-size: 17px; font-weight: 700; }
+.block ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.block li { padding-left: 16px; position: relative; font-size: 15.5px; }
+.block li::before { content: ""; position: absolute; left: 0; top: 0.6em; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.block.warn li::before { background: var(--warn-ink); }
+
+.dose { display: flex; align-items: baseline; gap: 8px; }
+.dose .big { font-family: var(--font-mono); font-weight: 700; font-size: 26px; color: var(--accent); }
+.dose .per { color: var(--muted); font-size: 14px; }
+
+.srcs { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; counter-reset: s; }
+.srcs li { padding-left: 28px; position: relative; font-size: 14px; }
+.srcs li::before { counter-increment: s; content: counter(s); position: absolute; left: 0; top: 2px; width: 20px; height: 20px; background: var(--surface-2); border-radius: 6px; font-family: var(--font-mono); font-size: 11px; display: grid; place-items: center; }
+.srcs a { color: var(--accent); text-decoration: none; font-weight: 500; }
+
+.fine { font-size: 13.5px; color: var(--muted); }
+
+/* Mine / Tracker */
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+.item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.check-row { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 15px; font-weight: 600; }
+.check-row input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer; }
+
+input[type="time"] {
+  font-family: var(--font-mono); font-size: 16px; padding: 6px 10px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+}
+.btn {
+  border: 0; border-radius: 14px; min-height: 48px; padding: 0 18px; font-weight: 700; font-size: 16px;
+  background: var(--accent); color: var(--accent-ink); font-family: var(--font-display); display: inline-flex; align-items: center; justify-content: center;
+}
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn.small { min-height: 38px; font-size: 14px; padding: 0 12px; border-radius: 10px; }
+.btn.full { width: 100%; }
+
+/* Navigation Bar */
+#bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding: 8px max(16px, env(safe-area-inset-left, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-right, 0px));
+}
+#bar .in { max-width: 480px; margin: 0 auto; display: flex; gap: 8px; }
+.tab {
+  flex: 1; border: 0; background: transparent; border-radius: 12px; min-height: 52px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px; font-size: 12.5px; font-weight: 600; color: var(--muted);
+}
+.tab[aria-current="page"] { color: var(--accent); background: var(--accent-soft); }
+.badge { background: var(--accent); color: var(--accent-ink); font-size: 11px; border-radius: 999px; padding: 1px 6px; margin-left: 4px; font-family: var(--font-mono); }
+
+/* Sheet & Toast */
+#sheet { position: fixed; inset: 0; z-index: 40; background: rgba(6, 18, 20, 0.55); display: flex; align-items: flex-end; justify-content: center; }
+#sheet[hidden] { display: none !important; }
+.sheet-in {
+  width: 100%; max-width: 480px; background: var(--surface); border-radius: 22px 22px 0 0; border: 1px solid var(--line);
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 14px;
+}
+#toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(88px + env(safe-area-inset-bottom, 0px)); z-index: 50;
+  background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14.5px;
+  max-width: calc(100vw - 32px); text-align: center;
+}
+#toast[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="top" class="top"></div>
+  <main id="app" class="screen"></main>
+</div>
+<div id="bar"><div class="in" id="barin"></div></div>
+<div id="sheet" hidden></div>
+<div id="toast" role="status" hidden></div>
+
+<script>
+// 30 ADET BİLİMSEL VE KANITA DAYALI TAKVİYE VERİTABANI
+var SUPPS = {
+  ala: {
+    name: "Alfa Lipoik Asit (ALA)",
+    alt: "Tioktik asit · Alpha Lipoic Acid",
+    summary: "Sinir hasarı (nöropati) ve glikoz metabolizmasını destekleyen güçlü antioksidan.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["Diyabetik nöropati (karıncalanma, ağrı) yaşayanlar", "Hücresel antioksidan desteği arayanlar"],
+    care: ["Şeker düşürücü ilaç kullananlar kan şekerini sık takip etmeli.", "Tiroid ilacı (levotiroksin) ile eşzamanlı almayın."],
+    does: ["Diyabetik sinir hasarına bağlı ağrı ve uyuşmayı azaltır.", "İnsülin duyarlılığını artırabilir."],
+    dose: { big: "300–600 mg", per: "günde 1-2 kez" },
+    timing: "Emilimi artırmak için yemeklerden 30-45 dk önce aç karnına alınmalıdır.",
+    sources: [{ t: "PubMed: Alpha-Lipoic Acid in Diabetic Neuropathy", u: "https://pubmed.ncbi.nlm.nih.gov/33461470/" }]
+  },
+  krom: {
+    name: "Krom (Chromium)",
+    alt: "Krom Pikolinat · Chromium Picolinate",
+    summary: "Kan şekeri dengesi ve karbonhidrat metabolizmasında iz mineral.",
+    ev: 2, evLabel: "Sınırlı kanıt",
+    who: ["Tatlı krizlerini kontrol etmek isteyenler", "İnsülin direnci takibi olanlar"],
+    care: ["Böbrek veya karaciğer rahatsızlığı olanlar yüksek doz kullanmamalı."],
+    does: ["İnsülin hormonunun reseptörlere bağlanma yeteneğini destekler."],
+    dose: { big: "200–400 mcg", per: "günde 1 kez" },
+    timing: "Yemeklerle birlikte alınması önerilir.",
+    sources: [{ t: "NIH ODS: Chromium Fact Sheet", u: "https://ods.od.nih.gov/factsheets/Chromium-HealthProfessional/" }]
+  },
+  mg: {
+    name: "Magnezyum (Sitrat / Bisglisinat)",
+    alt: "Magnesium Glycinate / Citrate",
+    summary: "Kas gevşemesi, sinir sistemi, uyku kalitesi ve kemik sağlığı için temel mineral.",
+    ev: 4, evLabel: "Çok güçlü kanıt",
+    who: ["Kas krampları ve bacak ağrıları çekenler", "Uyku bozukluğu ve stres yaşayanlar", "Kabızlık sorunu olanlar (Sitrat formu)"],
+    care: ["Ciddi böbrek yetmezliği olanlar doktor gözetiminde almalıdır."],
+    does: ["Kas kasılmalarını ve krampları önler.", "Sinir sistemini yatıştırır ve uykuya geçişi kolaylaştırır."],
+    dose: { big: "200–400 mg", per: "elementel magnezyum / gün" },
+    timing: "Rahatlama ve uyku desteği için akşam yemeğinden sonra veya yatmadan önce.",
+    sources: [{ t: "PubMed: Magnesium in Prevention and Therapy", u: "https://pubmed.ncbi.nlm.nih.gov/26404370/" }]
+  },
+  d3: {
+    name: "D3 Vitamini (Kolekalsiferol)",
+    alt: "Vitamin D3 · Cholecalciferol",
+    summary: "Bağışıklık, kemik yoğunluğu ve hormon dengesi için kritik vitamin.",
+    ev: 4, evLabel: "Çok güçlü kanıt",
+    who: ["Güneş ışığı az alanlar", "Kandaki D vitamini seviyesi <30 ng/mL olanlar", "Kemik erimesi riski taşıyanlar"],
+    care: ["Doymuş yüksek dozlar kalsiyum birikimine yol açabilir. Kan tahlili ile takip edilmeli."],
+    does: ["Kalsiyum emilimini artırır, kemikleri güçlendirir.", "Bağışıklık hücresi yanıtlarını düzenler."],
+    dose: { big: "1000–4000 IU", per: "günde (veya haftalık doz)" },
+    timing: "Yağda çözündüğü için yağ içeren ana öğünle (öğle/akşam) alınmalı.",
+    sources: [{ t: "NIH: Vitamin D Health Professional", u: "https://ods.od.nih.gov/factsheets/VitaminD-HealthProfessional/" }]
+  },
+  omega3: {
+    name: "Omega-3 Balık Yağı (EPA / DHA)",
+    alt: "Fish Oil · EPA & DHA Fatty Acids",
+    summary: "Kalp-damar sağlığı, beyin fonksiyonları ve eklem iltihabını azaltan yağ asitleri.",
+    ev: 4, evLabel: "Çok güçlü kanıt",
+    who: ["Trigliserit yüksekliği olanlar", "Eklem sertliği ve iltihabı yaşayanlar", "Odaklanma ve hafıza desteği arayanlar"],
+    care: ["Kan sulandırıcı (Kumadin, Aspirin) kullananlar doz için doktora danışmalı."],
+    does: ["Trigliserit seviyelerini düşürür.", "Enflamasyonu (iltihabı) baskılar."],
+    dose: { big: "1000–2000 mg", per: "toplam EPA+DHA / gün" },
+    timing: "Yemeklerle birlikte alınmalıdır (mide rahatsızlığını ve balık tadını azaltır).",
+    sources: [{ t: "Cochrane: Omega-3 fatty acids for cardiovascular disease", u: "https://pubmed.ncbi.nlm.nih.gov/31888288/" }]
+  },
+  b12: {
+    name: "B12 Vitamini (Metilkobalamin)",
+    alt: "Methylcobalamin · Vitamin B12",
+    summary: "Kırmızı kan hücresi üretimi, sinir kılıfı koruması ve enerji metabolizması.",
+    ev: 4, evLabel: "Çok güçlü kanıt",
+    who: ["Vejetaryen ve veganlar", "Metformin veya mide hapı (PPI) kullananlar", "Yorgunluk ve unutkanlık yaşayanlar"],
+    care: ["Genellikle çok güvenlidir, fazlası idrarla atılır."],
+    does: ["Anemi (kansızlık) oluşumunu engeller.", "Sinir hücrelerinin iletim hızını artırır."],
+    dose: { big: "500–1000 mcg", per: "günde (veya dilaltı)" },
+    timing: "Sabah kahvaltıdan sonra aç veya tok alınabilir.",
+    sources: [{ t: "StatPearls: Vitamin B12 Deficiency", u: "https://www.ncbi.nlm.nih.gov/books/NBK441923/" }]
+  },
+  coq10: {
+    name: "Koenzim Q10 (CoQ10 / Ubikinol)",
+    alt: "Ubiquinone · Ubiquinol",
+    summary: "Hücresel enerji (ATP) üretimi ve güçlü hücresel antioksidan koruma.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["Statin (kolesterol ilacı) kullananlar", "Halsizlik ve kas ağrısı çekenler", "Kalp sağlığını desteklemek isteyenler"],
+    care: ["Kan sulandırıcı ilaçların etkisini hafif değiştirebilir."],
+    does: ["Statinlerin neden olduğu kas ağrılarını hafifletebilir.", "Kalp hücresi enerjisini destekler."],
+    dose: { big: "100–200 mg", per: "günde 1 kez" },
+    timing: "Yağ içeren bir öğünle birlikte emilimi çok daha yüksektir.",
+    sources: [{ t: "PubMed: Coenzyme Q10 and Statin-Induced Myopathy", u: "https://pubmed.ncbi.nlm.nih.gov/26194578/" }]
+  },
+  zinko: {
+    name: "Çinko (Zinc Picolinate)",
+    alt: "Zinc Picolinate / Gluconate",
+    summary: "Bağışıklık sistemi, yara iyileşmesi ve cilt sağlığı için elzem iz mineral.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["Sık grip veya soğuk algınlığı geçirenler", "Cilt ve akne problemi yaşayanlar"],
+    care: ["Uzun süre yüksek doz (>40 mg) kullanımı bakır eksikliğine yol açabilir."],
+    does: ["Soğuk algınlığı süresini kısaltabilir.", "Bağışıklık hücre bölünmesini destekler."],
+    dose: { big: "15–30 mg", per: "günde 1 kez" },
+    timing: "Tok karnına alınmalıdır (aç karnına bulantı yapabilir).",
+    sources: [{ t: "NIH ODS: Zinc Fact Sheet", u: "https://ods.od.nih.gov/factsheets/Zinc-HealthProfessional/" }]
+  },
+  vitc: {
+    name: "C Vitamini (L-Askorbik Asit)",
+    alt: "Vitamin C · Ascorbic Acid",
+    summary: "Antioksidan, kolajen sentezi ve demir emilimini artıran suda eriyen vitamin.",
+    ev: 4, evLabel: "Çok güçlü kanıt",
+    who: ["Demir takviyesi alanlar (emilimi artırmak için)", "Sigara içenler (C vitamini tüketimi artar)"],
+    care: ["Çok yüksek dozlar (>2000 mg) ishal ve böbrek taşı riskini artırabilir."],
+    does: ["Hücreleri serbest radikallerden korur.", "Cilt ve damar esnekliği için kolajen sentezler."],
+    dose: { big: "500–1000 mg", per: "günde" },
+    timing: "Gün içinde herhangi bir zamanda su ile alınabilir.",
+    sources: [{ t: "PubMed: Vitamin C and Immune Function", u: "https://pubmed.ncbi.nlm.nih.gov/29099763/" }]
+  },
+  berberin: {
+    name: "Berberin (Berberine HCL)",
+    alt: "Berberine alkaloid",
+    summary: "Kan şekeri, insülin direnci ve kolesterol metabolizmasında etkili bitkisel bileşik.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["İnsülin direnci ve Tip 2 diyabet takibi olanlar", "Trigliserit ve LDL kolesterolü yüksek olanlar"],
+    care: ["Diyabet ilaçları ile birlikte hipoglisemi yapabilir. Hamilelikte kesinlikle kullanılmaz."],
+    does: ["AMPK enzimini aktive ederek glikoz kullanımını artırır.", "Kan şekerini düşürür."],
+    dose: { big: "500 mg", per: "günde 2-3 kez" },
+    timing: "Yemeklerden 10-15 dakika önce alınmalıdır.",
+    sources: [{ t: "PubMed: Efficacy of Berberine in Patients with Type 2 Diabetes", u: "https://pubmed.ncbi.nlm.nih.gov/18442638/" }]
+  },
+  kurkumin: {
+    name: "Kurkumin (Zerdeçal Ekstresi)",
+    alt: "Curcumin · Turmeric Extract",
+    summary: "Güçlü doğal antienflamatuar ve eklem rahatlatıcı bileşik.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["Eklem kireçlenmesi (osteoartrit) ağrısı olanlar", "Kronik enflamasyonu azaltmak isteyenlar"],
+    care: ["Saf kurkumin emilimi düşüktür; Karabiber (Piperine) veya lipid formülasyonlu tercih edilmeli."],
+    does: ["Eklem ağrılarını ve sertliğini azaltır.", "Enflamatuar sitokinleri baskılar."],
+    dose: { big: "500–1000 mg", per: "günde" },
+    timing: "Yağlı yemeklerle birlikte alınmalıdır.",
+    sources: [{ t: "PubMed: Curcumin: A Review of Its Effects on Human Health", u: "https://pubmed.ncbi.nlm.nih.gov/29065496/" }]
+  },
+  probiotic: {
+    name: "Probiyotik",
+    alt: "Lactobacillus · Bifidobacterium",
+    summary: "Sindirim sistemi, bağırsak florası ve bağışıklık dengesi için canlı dost bakteriler.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["Antibiyotik kullanımı sonrası florası bozulanlar", "Şişkinlik, gaz ve İBS rahatsızlığı olanlar"],
+    care: ["Bağışıklık sistemi aşırı baskılanmış kişiler doktora danışarak kullanmalıdır."],
+    does: ["Bağırsak mikrobiyotasını düzenler.", "Sindirim rahatsızlıklarını hafifletir."],
+    dose: { big: "5–50 Milyar", per: "KOB (CFU) / gün" },
+    timing: "Genellikle sabah aç karnına veya yatmadan önce su ile alınır.",
+    sources: [{ t: "NIH: Probiotics Fact Sheet", u: "https://ods.od.nih.gov/factsheets/Probiotics-HealthProfessional/" }]
+  },
+  melatonin: {
+    name: "Melatonin",
+    alt: "Uyku hormonu takviyesi",
+    summary: "Sirkadiyen ritmi ve uykuya geçiş süresini düzenleyen doğal hormon takviyesi.",
+    ev: 4, evLabel: "Çok güçlü kanıt",
+    who: ["Vardiyalı çalışanlar", "Jet-lag yaşayan seyahat edenler", "Uykuya dalmakta zorlananlar"],
+    care: ["Gündüz sersemlik yapabilir. Araç veya makine kullanmadan önce alınmamalıdır."],
+    does: ["Uykuya dalma süresini kısaltır.", "Biyolojik saati yeniden ayarlar."],
+    dose: { big: "1–3 mg", per: "yatmadan önce" },
+    timing: "Yatmayı planladığınız saatten 30-60 dakika önce alınır.",
+    sources: [{ t: "PubMed: Melatonin for the prevention and treatment of jet lag", u: "https://pubmed.ncbi.nlm.nih.gov/12076414/" }]
+  },
+  ashwagandha: {
+    name: "Ashwagandha (KSM-66)",
+    alt: "Withania somnifera · Hint Lepidyumu",
+    summary: "Stres, kortizol seviyeleri ve anksiyete semptomlarını yatıştıran adaptojen bitki.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["Kronik stres ve kaygı hissedenler", "Kortizol yüksekliği yaşayanlar"],
+    care: ["Otoimmün hastalığı veya tiroid bozukluğu olanlar dikkatli kullanmalıdır."],
+    does: ["Kan kortizol (stres hormonu) seviyesini düşürür.", "Zihinsel dinginlik sağlar."],
+    dose: { big: "300–600 mg", per: "günde (KSM-66 ekstresi)" },
+    timing: "Sabah veya akşam yemekle birlikte alınabilir.",
+    sources: [{ t: "PubMed: Prospective, Randomized Double-Blind Study of Ashwagandha", u: "https://pubmed.ncbi.nlm.nih.gov/23439798/" }]
+  },
+  demir: {
+    name: "Demir (Iron Bisglycinate)",
+    alt: "Ferröz Sülfat / Bisglisinat",
+    summary: "Oksijen taşıyan hemoglobin üretimi ve kansızlık (anemi) tedavisi.",
+    ev: 4, evLabel: "Çok güçlü kanıt",
+    who: ["Demir eksikliği anemisi tanısı konanlar", "Halsizlik ve solukluk yaşayanlar"],
+    care: ["Doktor kontrolü olmadan kullanılmamalıdır. Aşırı birikimi organlara zarar verir."],
+    does: ["Kırmızı kan hücrelerinin hemoglobin yapımını sağlar.", "Yorgunluğu giderir."],
+    dose: { big: "17–50 mg", per: "elementel demir / gün" },
+    timing: "C vitamini ile birlikte aç karnına emilimi yüksektir. Çay/kahve ve kalsiyum ile almayın.",
+    sources: [{ t: "NIH: Iron Fact Sheet", u: "https://ods.od.nih.gov/factsheets/Iron-HealthProfessional/" }]
+  },
+  folik: {
+    name: "Folik Asit (Metilfolat / B9)",
+    alt: "Methylfolate · Vitamin B9",
+    summary: "DNA sentezi, hücresel bölünme ve gebelik öncesi nöral tüp defekti önleme.",
+    ev: 4, evLabel: "Çok güçlü kanıt",
+    who: ["Hamilelik planlayan kadınlar", "B9 eksikliği olan bireyler"],
+    care: ["MTHFR gen mutasyonu olanlar direkt aktif 'Metilfolat' form tercih etmelidir."],
+    does: ["Bebeklerde omurga açıklığı (nöral tüp defekti) riskini önler."],
+    dose: { big: "400 mcg", per: "günde" },
+    timing: "Günün herhangi bir saatinde tok karnına alınabilir.",
+    sources: [{ t: "CDC: Folic Acid Recommendations", u: "https://www.cdc.gov/ncbddd/folicacid/recommendations.html" }]
+  },
+  kreatin: {
+    name: "Kreatin Monohidrat",
+    alt: "Creatine Monohydrate",
+    summary: "Kas kuvveti, patlayıcı güç ve zihinsel performansı artıran en çok araştırılmış takviye.",
+    ev: 4, evLabel: "Çok güçlü kanıt",
+    who: ["Sporcular ve kuvvet antrenmanı yapanlar", "Kas kütlesini korumak isteyen yaşlılar"],
+    care: ["Böbrek rahatsızlığı olanlar doktoruna danışmalı. Günlük su tüketimi artırılmalıdır."],
+    does: ["Kas hücresi ATP depolarını hızla yeniler.", "Kas gücünü ve hacmini artırır."],
+    dose: { big: "3–5 gram", per: "her gün" },
+    timing: "Antrenmandan hemen önce veya sonra bol su ile alınır.",
+    sources: [{ t: "ISSN Position Stand: Creatine Supplementation", u: "https://jissn.biomedcentral.com/articles/10.1186/s12970-017-0173-z" }]
+  },
+  bcomplex: {
+    name: "B Kompleks Vitaminleri",
+    alt: "B-Complex (B1, B2, B3, B5, B6, B12)",
+    summary: "Hücresel enerji üretimi, sinir sistemi ve metabolizma desteği.",
+    ev: 4, evLabel: "Çok güçlü kanıt",
+    who: ["Yoğun zihinsel/bedensel efor sarf edenler", "Yetersiz beslenenler"],
+    care: ["B2 vitamini (Riboflavin) idrar rengini parlak sarıya dönüştürebilir, zararsızdır."],
+    does: ["Besinlerin enerjiye dönüşümünü hızlandırır.", "Yorgunluk hissini azaltır."],
+    dose: { big: "1 Kompleks", per: "günde 1 kapsül" },
+    timing: "Sabah kahvaltısından sonra (enerji verdiği için gece önerilmez).",
+    sources: [{ t: "PubMed: B Vitamins and the Brain", u: "https://pubmed.ncbi.nlm.nih.gov/26828518/" }]
+  },
+  ltheanine: {
+    name: "L-Theanine",
+    alt: "Yeşil çay amino asiti",
+    summary: "Uykululuk yapmadan zihinsel odaklanma ve sakinlik sağlayan amino asit.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["Kahve içtiğinde çarpıntı/stres yaşayanlar", "Odaklanma ve sakinlik arayanlar"],
+    care: ["Tansiyon düşürücü ilaçlarla etkileşime girebilir."],
+    does: ["Beyinde Alpha dalgalarını artırarak rahatlamış bir odaklanma sağlar."],
+    dose: { big: "100–200 mg", per: "günde (veya kahve ile)" },
+    timing: "İhtiyaç duyulduğunda veya kahve ile birlikte alınır.",
+    sources: [{ t: "PubMed: Effects of L-Theanine on Stress-Related Symptoms", u: "https://pubmed.ncbi.nlm.nih.gov/31625982/" }]
+  },
+  devedikeni: {
+    name: "Deve Dikeni (Silimarin)",
+    alt: "Milk Thistle · Silymarin",
+    summary: "Karaciğer hücrelerini koruyan ve detoksifikasyonu destekleyen bitkisel takviye.",
+    ev: 2, evLabel: "Sınırlı-Orta kanıt",
+    who: ["Karaciğer yağlanması takibi olanlar", "Alkol veya ilaç yükü fazla olanlar"],
+    care: ["Papatya ve ayçiçeği ailesine alerjisi olanlarda reaksiyon yapabilir."],
+    does: ["Karaciğer hücre zarını toksinlere karşı korumaya yardımcı olur."],
+    dose: { big: "140–420 mg", per: "günde (Standart Silimarin)" },
+    timing: "Yemeklerle birlikte su ile alınır.",
+    sources: [{ t: "NCBI Bookshelf: Milk Thistle Monograph", u: "https://www.ncbi.nlm.nih.gov/books/NBK541075/" }]
+  },
+  ginkgo: {
+    name: "Ginkgo Biloba",
+    alt: "Mabet Ağacı Yaprağı",
+    summary: "Beyin kan dolaşımını ve kılcal damar akışını destekleyen antik bitki.",
+    ev: 2, evLabel: "Sınırlı kanıt",
+    who: ["Hafıza ve odaklanma desteği arayan yaşlılar", "Kulak çınlaması (Tinnitus) yaşayanlar"],
+    care: ["Kanı sulandırır! Ameliyat öncesi kesilmeli ve kan sulandırıcılarla alınmamalıdır."],
+    does: ["Beyne giden kan akışını artırmaya yardımcı olur."],
+    dose: { big: "120–240 mg", per: "günde (Standart ekstresi)" },
+    timing: "Yemeklerle birlikte alınmalıdır.",
+    sources: [{ t: "PubMed: Ginkgo biloba for cognitive impairment", u: "https://pubmed.ncbi.nlm.nih.gov/19069766/" }]
+  },
+  k2: {
+    name: "K2 Vitamini (MK-7)",
+    alt: "Menaquinone-7 · Vitamin K2",
+    summary: "Kalsiyumun damarlara değil doğrudan kemiklere yönlendirilmesini sağlayan vitamin.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["D3 vitamini ve Kalsiyum takviyesi alanlar", "Damar sertliği riski taşıyanlar"],
+    care: ["Kan sulandırıcı Kumadin (Warfarin) kullananlar doktor onayı olmadan K2 alamaz!"],
+    does: ["Osteokalsin proteinini aktive ederek kalsiyumu kemiğe bağlar."],
+    dose: { big: "90–120 mcg", per: "günde" },
+    timing: "D3 vitamini ile birlikte yağlı öğünle alınır.",
+    sources: [{ t: "PubMed: Vitamin K2 in Bone and Cardiovascular Health", u: "https://pubmed.ncbi.nlm.nih.gov/26770129/" }]
+  },
+  kalsiyum: {
+    name: "Kalsiyum (Sitrat / Karbonat)",
+    alt: "Calcium Citrate / Carbonate",
+    summary: "Kemik yapısı, diş sağlığı, kas kasılması ve sinir iletimi minerali.",
+    ev: 4, evLabel: "Çok güçlü kanıt",
+    who: ["Osteoporoz (kemik erimesi) tanısı olanlar", "Yetersiz süt ürünü tüketenlar"],
+    care: ["Aşırı kullanımı böbrek taşı ve damar kireçlenmesine yol açabilir. D3/K2 ile dengelenmelidir."],
+    does: ["Kemik mineral yoğunluğunu korur."],
+    dose: { big: "500–1000 mg", per: "günde" },
+    timing: "Sitrat formu aç/tok alınabilir; Karbonat formu tok alınmalıdır.",
+    sources: [{ t: "NIH: Calcium Fact Sheet", u: "https://ods.od.nih.gov/factsheets/Calcium-HealthProfessional/" }]
+  },
+  glukozamin: {
+    name: "Glukozamin & Kondroitin",
+    alt: "Glucosamine Sulfate & Chondroitin",
+    summary: "Eklem kıkırdak yapısını destekleyen ve aşınmayı geciktiren bileşikler.",
+    ev: 2, evLabel: "Sınırlı-Orta kanıt",
+    who: ["Diz ve eklem kireçlenmesi (Osteoartrit) olanlar"],
+    care: ["Deniz ürünleri alerjisi olanlar kabuklu deniz canlılarından üretilenleri kullanmamalı."],
+    does: ["Kıkırdak dokunun su tutmasını ve esnekliğini destekler."],
+    dose: { big: "1500 mg Glukozamin", per: "günde" },
+    timing: "Yemeklerle birlikte bölünmüş dozlarda alınır.",
+    sources: [{ t: "Cochrane: Glucosamine therapy for osteoarthritis", u: "https://pubmed.ncbi.nlm.nih.gov/15846645/" }]
+  },
+  kolajen: {
+    name: "Kolajen Peptitleri (Hidrolize)",
+    alt: "Collagen Peptides (Tip I, II, III)",
+    summary: "Cilt esnekliği, kırışıklık azaltma ve eklem kıkırdak sağlığı hidrolize proteini.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["Cilt yaşlanması ve kırışıklık belirtisi görenlar", "Eklem ağrısı çekenler"],
+    care: ["Protein alerjisi veya hassasiyeti olanlar içeriği incelemelidir."],
+    does: ["Cilt hidrasyonunu ve elastikiyetini artırır."],
+    dose: { big: "2.5–10 gram", per: "günde (Hidrolize)" },
+    timing: "C vitamini içeren bir içecekle akşam yatmadan önce veya sabah alınabilir.",
+    sources: [{ t: "PubMed: Oral Collagen Supplementation in Skin Health", u: "https://pubmed.ncbi.nlm.nih.gov/30681287/" }]
+  },
+  resveratrol: {
+    name: "Resveratrol",
+    alt: "Trans-Resveratrol",
+    summary: "Üzüm kabuğunda bulunan anti-aging ve hücresel uzun ömür (Sirtuin) aktivatörü.",
+    ev: 2, evLabel: "Sınırlı kanıt",
+    who: ["Hücresel yaşlanma karşıtı (Anti-aging) destek arayanlar"],
+    care: ["Östrojene duyarlı durumu olanlar dikkatli olmalıdır."],
+    does: ["Sirtuin genlerini uyararak hücresel koruma sağlar."],
+    dose: { big: "150–500 mg", per: "günde" },
+    timing: "Yağ içeren sabah kahvaltısı ile alınır.",
+    sources: [{ t: "PubMed: Resveratrol and Health: A Comprehensive Review", u: "https://pubmed.ncbi.nlm.nih.gov/22055827/" }]
+  },
+  egcg: {
+    name: "Yeşil Çay Ekstresi (EGCG)",
+    alt: "EGCG · Epigallocatechin Gallate",
+    summary: "Metabolizma hızlandırıcı, yağ yakımı ve antioksidan yeşil çay polifenolü.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["Kilo yönetimi ve metabolizma desteği arayanlar"],
+    care: ["Aşırı yüksek doz aç karnına karaciğeri yorabilir. Tok karnına alınmalıdır."],
+    does: ["Yağ oksidasyonunu hafifçe artırır."],
+    dose: { big: "250–500 mg EGCG", per: "günde" },
+    timing: "Yemekten sonra alınmalıdır (Aç karnına alınmamalıdır).",
+    sources: [{ t: "PubMed: Green Tea Extract and Fat Oxidation", u: "https://pubmed.ncbi.nlm.nih.gov/18326600/" }]
+  },
+  nac: {
+    name: "NAC (N-Asetilsistein)",
+    alt: "N-Acetyl Cysteine",
+    summary: "Glutatyon üretimi, akciğer mukus çözücü ve karaciğer detoks desteği.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["Balgamlı öksürük ve solunum yolu doluluğu olanlar", "Glutatyon seviyesini yükseltmek isteyenler"],
+    care: ["Astım hastaları ilk kullanımda dikkatli olmalıdır."],
+    does: ["Mukusu sulandırır, vücudun en ana antioksidanı olan Glutatyon'u sentezler."],
+    dose: { big: "600–1200 mg", per: "günde" },
+    timing: "Bol su ile aç veya tok karnına alınabilir.",
+    sources: [{ t: "PubMed: Clinical Applications of N-Acetylcysteine", u: "https://pubmed.ncbi.nlm.nih.gov/25225036/" }]
+  },
+  selenium: {
+    name: "Selenyum (Selenium)",
+    alt: "L-Selenomethionine",
+    summary: "Tiroid hormonu dönüşümü (T4->T3) ve bağışıklık koruma minerali.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["Hashimoto tiroiditi hastaları", "Bağışıklık desteği arayanlar"],
+    care: ["Günlük 400 mcg üzeri toksiktir (saç dökülmesi yapar). Doza dikkat edilmeli."],
+    does: ["Tiroid enzimlerinin çalışmasını sağlar."],
+    dose: { big: "100–200 mcg", per: "günde" },
+    timing: "Yemeklerle birlikte su ile alınır.",
+    sources: [{ t: "NIH: Selenium Fact Sheet", u: "https://ods.od.nih.gov/factsheets/Selenium-HealthProfessional/" }]
+  },
+  rhodiola: {
+    name: "Rodiola (Rhodiola Rosea)",
+    alt: "Altın Kök · Rosavin & Salidroside",
+    summary: "Zihinsel yorgunluk, tükenmişlik ve stres direncini artıran adaptojen.",
+    ev: 3, evLabel: "Orta-Güçlü kanıt",
+    who: ["Kronik zihinsel yorgunluk yaşayanlar", "Sınav/iş stresi altındakiler"],
+    care: ["Bipolar rahatsızlığı olanlar kullanmamalıdır."],
+    does: ["Stres kaynaklı tükenmişlik hissini ve zihinsel sisi azaltır."],
+    dose: { big: "200–400 mg", per: "günde (Standart ekstre)" },
+    timing: "Uyarıcı etkisi nedeniyle sabah aç karnına alınır.",
+    sources: [{ t: "PubMed: Rhodiola rosea for mental fatigue", u: "https://pubmed.ncbi.nlm.nih.gov/20378318/" }]
+  }
+};
+
+// Uygulama Durumu
+var state = { tab: "discover", view: "home", supp: null, search: "" };
+var mine = loadMine();
+
+function loadMine() {
+  try {
+    var v = JSON.parse(localStorage.getItem("tk_mine") || "[]");
+    return Array.isArray(v) ? v : [];
+  } catch (e) { return []; }
+}
+function saveMine() { try { localStorage.setItem("tk_mine", JSON.stringify(mine)); } catch (e) {} }
+function findMine(id) { for (var i = 0; i < mine.length; i++) if (mine[i].id === id) return mine[i]; return null; }
+
+var $app = document.getElementById("app"), $top = document.getElementById("top"), $bar = document.getElementById("barin"),
+    $sheet = document.getElementById("sheet"), $toast = document.getElementById("toast"), toastT;
+
+var ICON = {
+  back: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  go: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>',
+  search: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+  pill: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="8.5" width="18" height="7" rx="3.5" transform="rotate(-35 12 12)"/><path d="M9.2 7.4l5.6 9.2" /></svg>'
+};
+
+function meter(n) {
+  return '<span class="meter" aria-hidden="true">' + [1, 2, 3, 4].map(function (i) { return '<i class="' + (i <= n ? "on" : "") + '"></i>'; }).join("") + "</span>";
+}
+
+function renderTop() {
+  if (state.tab === "mine") {
+    $top.innerHTML = '<div class="top-row"><h1 class="brand">Takviye<span>lerim</span></h1></div>';
+    return;
+  }
+  if (state.view === "home") {
+    $top.innerHTML = '<div class="top-row"><div class="brand">Takviye<span>Rehberi</span></div></div>' +
+      '<div class="search-box"><span class="search-icon">' + ICON.search + '</span>' +
+      '<input type="text" id="search-input" placeholder="Takviye adı veya etken madde ara..." value="' + state.search + '"></div>';
+    return;
+  }
+  var title = SUPPS[state.supp] ? SUPPS[state.supp].name : "";
+  $top.innerHTML = '<div class="top-row"><button class="back" data-a="back" aria-label="Geri">' + ICON.back + '</button><div class="top-title">' + title + '</div></div>';
+}
+
+function viewHome() {
+  var keys = Object.keys(SUPPS);
+  if (state.search.trim() !== "") {
+    var q = state.search.toLowerCase();
+    keys = keys.filter(function (k) {
+      var s = SUPPS[k];
+      return s.name.toLowerCase().indexOf(q) !== -1 || s.alt.toLowerCase().indexOf(q) !== -1 || s.summary.toLowerCase().indexOf(q) !== -1;
+    });
+  }
+
+  if (keys.length === 0) {
+    return '<div class="empty" style="text-align:center; padding: 40px 10px; color: var(--muted);">' +
+      '<h3>Aramanıza uygun takviye bulunamadı</h3><p>Farklı bir kelime ile tekrar arayabilirsiniz.</p></div>';
+  }
+
+  var items = keys.map(function (id) {
+    var s = SUPPS[id];
+    return '<button class="card" data-a="supp" data-id="' + id + '">' +
+      '<div><h3>' + s.name + '</h3><p>' + s.summary + '</p><span class="ev">' + meter(s.ev) + s.evLabel + '</span></div>' +
+      '<span class="go">' + ICON.go + '</span></button>';
+  }).join("");
+
+  return '<div class="list">' + items + '</div><p class="fine" style="text-align:center;">Toplam ' + keys.length + ' takviye listeleniyor.</p>';
+}
+
+function viewDetail() {
+  var s = SUPPS[state.supp];
+  var whoLi = s.who.map(function (t) { return '<li>' + t + '</li>'; }).join("");
+  var careLi = s.care.map(function (t) { return '<li>' + t + '</li>'; }).join("");
+  var doesLi = s.does.map(function (t) { return '<li>' + t + '</li>'; }).join("");
+  var srcs = s.sources.map(function (x) { return '<li><a href="' + x.u + '" target="_blank" rel="noopener">' + x.t + '</a></li>'; }).join("");
+
+  return '<div class="hero"><h1>' + s.name + '</h1><div class="alt">' + s.alt + '</div><span class="ev">' + meter(s.ev) + s.evLabel + '</span></div>' +
+    '<section class="block good"><h2>Kimler Kullanabilir? (Endikasyonlar)</h2><ul>' + whoLi + '</ul></section>' +
+    '<section class="block warn"><h2>Kimler Kullanmamalı / Uyarılar</h2><ul>' + careLi + '</ul></section>' +
+    '<section class="block"><h2>Ne İşe Yarar?</h2><ul>' + doesLi + '</ul></section>' +
+    '<section class="block"><h2>Doz ve Kullanım</h2><div class="dose"><span class="big">' + s.dose.big + '</span><span class="per">' + s.dose.per + '</span></div></section>' +
+    '<section class="block"><h2>Aç mı, Tok mu?</h2><p style="font-size:15.5px;">' + s.timing + '</p></section>' +
+    '<section class="block"><h2>Bilimsel Kaynaklar</h2><ol class="srcs">' + srcs + '</ol></section>' +
+    '<p class="fine">Bu bilgiler tıbbi tavsiye niteliğinde değildir. İlaç kullanıyorsanız doktorunuza danışınız.</p>';
+}
+
+function viewMine() {
+  if (!mine.length) {
+    return '<div class="empty" style="text-align:center; padding: 40px 10px; color: var(--muted);">' +
+      '<h3>Henüz takip ettiğiniz takviye yok</h3><p>Takviye detay sayfasından "Kullanmaya başla" butonuna basarak listenize ekleyebilirsiniz.</p></div>';
+  }
+
+  var items = mine.map(function (m) {
+    var s = SUPPS[m.id];
+    if (!s) return "";
+    return '<div class="item">' +
+      '<div class="item-top"><div><h3>' + s.name + '</h3><div class="fine">Hatırlatıcı: ' + m.time + '</div></div>' +
+      '<button class="btn ghost small" data-a="remove" data-id="' + m.id + '">Çıkar</button></div>' +
+      '<div class="item-top" style="align-items:center;">' +
+      '<label class="check-row"><input type="checkbox" data-a="toggle-done" data-id="' + m.id + '" ' + (m.done ? "checked" : "") + '> Bugün Aldım</label>' +
+      '<input type="time" value="' + m.time + '" data-time="' + m.id + '">' +
+      '</div></div>';
+  }).join("");
+
+  return '<p class="sub">Günlük takviye takibiniz ve bildirim saatleriniz:</p><div class="list">' + items + '</div>';
+}
+
+function renderBar() {
+  if (state.view === "detail" && state.tab === "discover") {
+    var m = findMine(state.supp);
+    $bar.innerHTML = '<button class="btn full" data-a="start" data-id="' + state.supp + '">' +
+      (m ? "Listenizde Ekli (Saati Değiştir)" : "Kullanmaya Başla (Listeme Ekle)") + '</button>';
+    return;
+  }
+  $bar.innerHTML =
+    '<button class="tab" data-a="tab" data-id="discover"' + (state.tab === "discover" ? ' aria-current="page"' : "") + '>' + ICON.search + 'Keşfet</button>' +
+    '<button class="tab" data-a="tab" data-id="mine"' + (state.tab === "mine" ? ' aria-current="page"' : "") + '>' + ICON.pill + 'Takviyelerim' + (mine.length ? '<span class="badge">' + mine.length + '</span>' : "") + '</button>';
+}
+
+function render(scroll) {
+  renderTop();
+  $app.innerHTML = state.tab === "mine" ? viewMine() : state.view === "home" ? viewHome() : viewDetail();
+  renderBar();
+  if (scroll) window.scrollTo(0, 0);
+
+  var inp = document.getElementById("search-input");
+  if (inp) {
+    inp.addEventListener("input", function (e) {
+      state.search = e.target.value;
+      $app.innerHTML = viewHome();
+    });
+  }
+}
+
+function toast(msg) {
+  $toast.textContent = msg; $toast.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(function () { $toast.hidden = true; }, 2800);
+}
+
+function openSheet(id) {
+  var s = SUPPS[id], m = findMine(id);
+  $sheet.dataset.id = id;
+  $sheet.innerHTML = '<div class="sheet-in"><h2 style="font-size:20px; font-weight:800;">Hatırlatma Saati Kur</h2>' +
+    '<p style="font-size:15px; color:var(--muted);">' + s.name + ' için günlük bildirim saatini seçin.</p>' +
+    '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+    '<label style="font-weight:600;">Saat</label><input type="time" id="sheet-time" value="' + (m ? m.time : "09:00") + '"></div>' +
+    '<button class="btn full" data-a="save">' + (m ? "Saati Güncelle" : "Listeme Ekle") + '</button>' +
+    '<button class="btn ghost full" data-a="close">Vazgeç</button></div>';
+  $sheet.hidden = false;
+}
+function closeSheet() { $sheet.hidden = true; }
+
+document.addEventListener("click", function (e) {
+  if (e.target === $sheet) { closeSheet(); return; }
+  var el = e.target.closest("[data-a]"); if (!el) return;
+  var a = el.dataset.a, id = el.dataset.id;
+
+  if (a === "supp") { state.supp = id; state.view = "detail"; render(true); }
+  else if (a === "back") { state.view = "home"; render(true); }
+  else if (a === "tab") { state.tab = id; if(id==='discover') state.view='home'; render(true); }
+  else if (a === "start") { openSheet(id); }
+  else if (a === "close") { closeSheet(); }
+  else if (a === "save") {
+    var v = document.getElementById("sheet-time").value, sid = $sheet.dataset.id;
+    if (!v) return;
+    var m = findMine(sid);
+    if (m) m.time = v; else mine.push({ id: sid, time: v, done: false });
+    saveMine(); closeSheet(); render(false);
+    toast("Listene eklendi. Her gün " + v + " saatinde hatırlatılacak.");
+  }
+  else if (a === "remove") {
+    mine = mine.filter(function (x) { return x.id !== id; });
+    saveMine(); render(false); toast("Listeden çıkarıldı.");
+  }
+  else if (a === "toggle-done") {
+    var m2 = findMine(id);
+    if (m2) { m2.done = e.target.checked; saveMine(); }
+  }
+});
+
+document.addEventListener("change", function (e) {
+  var id = e.target && e.target.dataset && e.target.dataset.time; if (!id) return;
+  var m = findMine(id); if (!m) return;
+  m.time = e.target.value; saveMine(); toast("Hatırlatma saati güncellendi: " + m.time);
+});
+
+render(false);
+</script>
+</body>
+</html>
