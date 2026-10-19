@@ -186,7 +186,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 
 .notif-badge-btn {
   position: relative; width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line);
-  background: var(--surface); display: grid; place-items: center; color: var(--accent); cursor: pointer;
+  background: var(--surface); display: grid; place-items: center; color: var(--accent); cursor: pointer; flex: none;
 }
 .notif-dot {
   position: absolute; top: -3px; right: -3px; width: 10px; height: 10px; background: var(--danger-ink); border-radius: 50%; border: 2px solid var(--surface);
@@ -307,7 +307,7 @@ var suppListAdditional = [
   ["Mangan Şelat", "Kıkırdak matris oluşumu", 3, "2 mg"],
   ["Bakır Şelat", "Demir emilimi ve elastin yapımı", 3, "1-2 mg"],
   ["Molibden", "Sülfit metabolizması enzimi", 3, "75 mcg"],
-  ["Vanadyum", "Glikoz tolerans faktörü destek", 2, "100 mcg"],
+  ["Vanadyum", "Glikoz tolerans faktörü desteği", 2, "100 mcg"],
   ["A Vitamini (Retinol)", "Görme netliği ve mukoza zarı", 4, "3000 IU"],
   ["E Vitamini (Tokoferol)", "Hücre zarı koruyucu antioksidan", 4, "200 IU"],
   ["K1 Vitamini", "Kan pıhtılaşma mekanizması", 4, "100 mcg"],
@@ -403,7 +403,7 @@ var currentUser = null;
 var state = { view: "login", authMode: "login", tab: "discover", supp: null, search: "", editId: null };
 var mine = [];
 var myDrugs = [];
-var announcementsList = []; // Tüm duyuruları tutmak için dizi
+var announcementsList = [];
 var hasUnreadAnnouncement = false;
 
 function initCloudSync() {
@@ -756,7 +756,7 @@ function toast(msg) {
   clearTimeout(toastT); toastT = setTimeout(function () { $toast.hidden = true; }, 2600);
 }
 
-// BİLDİRİM / DUYURU POPUP PENCERESİ
+// YENİ DUYURU GELDİĞİNDE OTOMATİK AÇILAN POPUP
 function showPopupModal(title, message) {
   $modal.innerHTML = '<div class="modal-box">' +
     '<h3 style="color:var(--accent);">📢 ' + title + '</h3>' +
@@ -766,9 +766,9 @@ function showPopupModal(title, message) {
   $modal.hidden = false;
 }
 
-// TÜM GEÇMİŞ DUYURULARI LİSTELEYEN MODAL
+// ZİL İKONUNA TIKLANDIĞINDA ESKİ/YENİ DUYURULARI GÖSTEREN MODAL
 function openAnnouncementsModal() {
-  hasUnreadAnnouncement = false; // Okundu olarak işaretle, kırmızı noktayı kaldır
+  hasUnreadAnnouncement = false; // Rozeti temizle
   renderTop();
 
   var listHtml = "";
