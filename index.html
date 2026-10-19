@@ -450,7 +450,6 @@ function initCloudSync() {
     render(false);
   }, function(err) { console.log(err); });
 
-  // Canlı Duyuruları Dinle
   db.collection("announcements").orderBy("date", "desc").onSnapshot(function(snapshot) {
     announcementsList = [];
     snapshot.forEach(function(doc) {
@@ -645,22 +644,51 @@ function viewProfile() {
 function handleProfileFileSelect(event) {
   var file = event.target.files[0];
   if (!file) return;
-  selectedProfileFile = file;
 
   var reader = new FileReader();
   reader.onload = function(e) {
-    var preview = document.getElementById("prof-img-preview");
-    if (preview) {
-      if (preview.tagName.toLowerCase() === "img") {
-        preview.src = e.target.result;
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      var MAX_WIDTH = 300;
+      var MAX_HEIGHT = 300;
+      var width = img.width;
+      var height = img.height;
+
+      if (width > height) {
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
       } else {
-        var newImg = document.createElement("img");
-        newImg.id = "prof-img-preview";
-        newImg.src = e.target.result;
-        newImg.className = "profile-avatar";
-        preview.parentNode.replaceChild(newImg, preview);
+        if (height > MAX_HEIGHT) {
+          width *= MAX_HEIGHT / height;
+          height = MAX_HEIGHT;
+        }
       }
-    }
+
+      canvas.width = width;
+      canvas.height = height;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      var compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      selectedProfileFile = compressedBase64;
+
+      var preview = document.getElementById("prof-img-preview");
+      if (preview) {
+        if (preview.tagName.toLowerCase() === "img") {
+          preview.src = compressedBase64;
+        } else {
+          var newImg = document.createElement("img");
+          newImg.id = "prof-img-preview";
+          newImg.src = compressedBase64;
+          newImg.className = "profile-avatar";
+          preview.parentNode.replaceChild(newImg, preview);
+        }
+      }
+    };
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
@@ -955,7 +983,6 @@ document.addEventListener("click", function (e) {
       if (pass !== pass2) { document.getElementById("log-err").textContent = "Şifreler birbiriyle eşleşmiyor."; return; }
       if (!legalChecked) { document.getElementById("log-err").textContent = "Lütfen yasal bilgilendirmeyi onaylayınız."; return; }
 
-      // Kullanıcı adı çakışma kontrolü
       db.collection("users").where("username_lowercase", "==", usernameInput).get().then(function(snapshot) {
         if (!snapshot.empty) {
           document.getElementById("log-err").textContent = "Bu kullanıcı adı zaten alınmış.";
@@ -976,7 +1003,6 @@ document.addEventListener("click", function (e) {
       });
 
     } else {
-      // Giriş Yapma - Kullanıcı adı veya E-posta Desteği
       if (emailInput.indexOf("@") === -1) {
         var unameClean = emailInput.toLowerCase();
         db.collection("users").where("username_lowercase", "==", unameClean).get().then(function(snapshot) {
@@ -999,35 +1025,22 @@ document.addEventListener("click", function (e) {
 
     toast("Profil güncelleniyor...");
 
-    function finalizeSave(pUrl) {
-      var updateData = {
-        username: newUsername,
-        username_lowercase: newUsername.toLowerCase(),
-        photoUrl: pUrl
-      };
-      
-      db.collection("users").doc(currentUser.uid).set(updateData, { merge: true }).then(function() {
-        userProfile.username = newUsername;
-        userProfile.photoUrl = pUrl;
-        if (currentUser.updateProfile) {
-          currentUser.updateProfile({ displayName: newUsername, photoURL: pUrl });
-        }
-        toast("Profiliniz başarıyla güncellendi!");
-        selectedProfileFile = null;
-        render(false);
-      }).catch(function(err) { alert("Güncelleme hatası: " + err.message); });
-    }
-
-    if (selectedProfileFile && typeof storage !== "undefined") {
-      var fileRef = storage.ref().child("profile_photos/" + currentUser.uid + "_" + Date.now());
-      fileRef.put(selectedProfileFile).then(function(snapshot) {
-        return snapshot.ref.getDownloadURL();
-      }).then(function(downloadURL) {
-        finalizeSave(downloadURL);
-      }).catch(function(err) { alert("Fotoğraf yükleme hatası: " + err.message); });
-    } else {
-      finalizeSave(userProfile.photoUrl || "");
-    }
+    var updateData = {
+      username: newUsername,
+      username_lowercase: newUsername.toLowerCase(),
+      photoUrl: selectedProfileFile !== null ? selectedProfileFile : (userProfile.photoUrl || "")
+    };
+    
+    db.collection("users").doc(currentUser.uid).set(updateData, { merge: true }).then(function() {
+      userProfile.username = newUsername;
+      if (selectedProfileFile !== null) userProfile.photoUrl = selectedProfileFile;
+      if (currentUser.updateProfile) {
+        currentUser.updateProfile({ displayName: newUsername, photoURL: userProfile.photoUrl });
+      }
+      toast("Profiliniz başarıyla güncellendi!");
+      selectedProfileFile = null;
+      render(false);
+    }).catch(function(err) { alert("Güncelleme hatası: " + err.message); });
   }
   else if (a === "resend-verify") {
     if (auth && auth.currentUser) {
