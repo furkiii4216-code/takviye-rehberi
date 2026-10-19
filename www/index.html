@@ -216,6 +216,69 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
   background: var(--accent); color: var(--accent-ink); display: grid; place-items: center;
   border: 2px solid var(--surface); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
+
+/* ---------- GİRİŞ EKRANI ---------- */
+.lg-hero {
+  background: linear-gradient(145deg, #085559 0%, #0B6B6F 45%, #16A8A6 100%);
+  border-radius: 26px; padding: 30px 20px 26px; color: #fff; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 8px;
+  box-shadow: 0 10px 28px rgba(8, 85, 89, 0.28); position: relative; overflow: hidden;
+}
+.lg-hero::after {
+  content: ""; position: absolute; right: -50px; top: -50px; width: 160px; height: 160px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+.lg-logo { width: 88px; height: 88px; border-radius: 24px; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28); }
+.lg-logo svg { width: 100%; height: 100%; display: block; }
+.lg-hero h1 { font-size: 26px; font-weight: 800; color: #fff; margin-top: 6px; }
+.lg-hero h1 span { color: #BEEDEA; }
+.lg-hero p { font-size: 14.5px; opacity: 0.92; max-width: 280px; }
+.lg-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 6px; position: relative; z-index: 1; }
+.lg-chips span { background: rgba(255, 255, 255, 0.16); border: 1px solid rgba(255, 255, 255, 0.28); border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
+.lg-card { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 6px 20px rgba(15, 42, 46, 0.06); }
+.lg-card label.fine { display: block; margin-bottom: 4px; font-weight: 600; color: var(--ink); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface-2); border-radius: 14px; padding: 4px; gap: 4px; }
+.seg button { border: 0; background: transparent; border-radius: 11px; min-height: 40px; font-weight: 700; font-size: 14.5px; color: var(--muted); font-family: var(--font-display); }
+.seg button.active { background: var(--surface); color: var(--accent); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); }
+.pw { position: relative; }
+.pw input { padding-right: 46px; }
+.pw-eye { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border: 0; background: transparent; color: var(--muted); font-size: 17px; }
+.lg-link { background: none; border: 0; color: var(--accent); font-weight: 700; font-size: 13.5px; padding: 0; align-self: flex-end; }
+.lg-foot { text-align: center; padding: 0 12px; }
+.btn.lg { min-height: 50px; font-size: 16px; border-radius: 14px; }
+
+/* ---------- PROFİL + RUTİN ---------- */
+.p-hero { background: linear-gradient(145deg, #085559 0%, #0B6B6F 55%, #16A8A6 100%); border-radius: 24px; padding: 18px 16px 16px; color: #fff; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 26px rgba(8, 85, 89, 0.25); }
+.p-top { display: flex; align-items: center; gap: 14px; }
+.p-top .profile-avatar-container { margin: 0; width: 68px; height: 68px; flex: none; }
+.p-top .profile-avatar { font-size: 26px; border: 2px solid rgba(255, 255, 255, 0.85); background: rgba(255, 255, 255, 0.18); color: #fff; box-shadow: none; }
+.p-top .profile-avatar-upload-btn { width: 26px; height: 26px; background: #fff; color: #0B6B6F; border: 2px solid #0B6B6F; }
+.p-id { flex: 1; min-width: 0; }
+.p-id h2 { font-size: 19px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.p-id div { font-size: 12.5px; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ring { --p: 0; width: 60px; height: 60px; border-radius: 50%; flex: none; display: grid; place-items: center; position: relative;
+  background: conic-gradient(#fff calc(var(--p) * 1%), rgba(255, 255, 255, 0.25) 0); }
+.ring::before { content: ""; position: absolute; inset: 6px; border-radius: 50%; background: #0B6B6F; }
+.ring span { position: relative; font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; color: #fff; }
+.p-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.p-stats div { background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 14px; padding: 8px 4px; text-align: center; display: flex; flex-direction: column; }
+.p-stats b { font-family: var(--font-display); font-size: 19px; font-weight: 800; }
+.p-stats span { font-size: 11.5px; opacity: 0.9; }
+.p-save { background: #fff; color: #0B6B6F; }
+.sec-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.sec-head h2 { font-size: 17px; font-weight: 800; }
+.rt-item { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; }
+.rt-item.done { background: var(--accent-soft); border-color: var(--accent); }
+.rt-item.done h3 { text-decoration: line-through; opacity: 0.7; }
+.rt-time { font-family: var(--font-mono); font-weight: 700; font-size: 13px; color: var(--accent); background: var(--accent-soft); border-radius: 10px; padding: 8px 9px; }
+.rt-item.done .rt-time { background: var(--surface); }
+.rt-body { min-width: 0; }
+.rt-body h3 { font-size: 15px; line-height: 1.25; }
+.rt-body .fine { font-size: 12px; }
+.rt-check { display: grid; place-items: center; width: 40px; height: 40px; cursor: pointer; }
+.rt-check input { width: 24px; height: 24px; accent-color: var(--accent); cursor: pointer; }
+.rt-x { width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 14px; }
+.empty { text-align: center; padding: 22px 16px; border: 1.5px dashed var(--line); border-radius: 18px; color: var(--muted); font-size: 14px; }
 </style>
 </head>
 <body>
@@ -511,8 +574,8 @@ function setupPushNotifications() {
   var cap = window.Capacitor;
   // Sadece APK (native) içinde çalışır; tarayıcıda sessizce atlanır.
   if (!(cap && cap.isNativePlatform && cap.isNativePlatform())) return;
-  var PN = cap.Plugins && cap.Plugins.PushNotifications;
-  if (!PN) { console.log("PushNotifications eklentisi bulunamadı"); return; }
+  var PN = (cap.Plugins && cap.Plugins.PushNotifications) || (cap.registerPlugin ? cap.registerPlugin("PushNotifications") : null);
+  if (!PN) { toast("Bildirim eklentisi bulunamadı"); return; }
 
   if (!pushListenersAdded) {
     pushListenersAdded = true;
@@ -521,9 +584,10 @@ function setupPushNotifications() {
       db.collection("fcm_tokens").doc(currentUser.uid).set({
         tokens: firebase.firestore.FieldValue.arrayUnion(t.value),
         updated: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true }).catch(function (e) { console.log("Token kaydı hatası", e); });
+      }, { merge: true }).then(function () { toast("Bildirimler aktif ✓"); })
+        .catch(function (e) { toast("Bildirim kaydı yazılamadı"); console.log("Token kaydı hatası", e); });
     });
-    PN.addListener("registrationError", function (e) { console.log("Push kayıt hatası", JSON.stringify(e)); });
+    PN.addListener("registrationError", function (e) { toast("Bildirim kaydı başarısız"); console.log("Push kayıt hatası", JSON.stringify(e)); });
     // Uygulama açıkken gelen bildirimi toast olarak göster
     PN.addListener("pushNotificationReceived", function (n) {
       toast((n && n.title ? n.title + ": " : "") + (n && n.body ? n.body : "Yeni bildirim"));
@@ -533,8 +597,8 @@ function setupPushNotifications() {
   // Android 13+ için "Bildirimlere izin ver?" penceresini açar
   PN.requestPermissions().then(function (r) {
     if (r && r.receive === "granted") { PN.register(); }
-    else { console.log("Bildirim izni verilmedi"); }
-  }).catch(function (e) { console.log(e); });
+    else { toast("Bildirim izni verilmedi. Telefon ayarlarından açabilirsin."); }
+  }).catch(function (e) { toast("Bildirim izni hatası"); console.log(e); });
 }
 
 function loadUserData() {
@@ -543,7 +607,31 @@ function loadUserData() {
     mine = JSON.parse(localStorage.getItem("tk_mine_" + currentUser.uid) || "[]");
     myDrugs = JSON.parse(localStorage.getItem("tk_drugs_" + currentUser.uid) || "[]");
   } catch(e) { mine = []; myDrugs = []; }
+  // "Bugün aldım" işaretleri her yeni günde sıfırlanır
+  var t = todayStr();
+  mine.forEach(function (x) { if (x.day !== t) x.done = false; });
+  myDrugs.forEach(function (x) { if (x.day !== t) x.done = false; });
   render();
+}
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+}
+function routineEntries() {
+  var list = [];
+  mine.forEach(function (m) {
+    var s = SUPPS[m.id]; if (!s) return;
+    list.push({ type: "supp", id: m.id, time: m.time || "", done: !!m.done, name: s.name, sub: "Takviye" + (s.dose && s.dose.big ? " · " + s.dose.big : "") });
+  });
+  myDrugs.forEach(function (d) {
+    var dr = DRUGS[d.id]; if (!dr) return;
+    list.push({ type: "drug", id: d.id, time: d.time || "", done: !!d.done, name: dr.name, sub: dr.group });
+  });
+  list.sort(function (a, b) { return a.time < b.time ? -1 : (a.time > b.time ? 1 : 0); });
+  return list;
+}
+function pendingCount() {
+  return routineEntries().filter(function (e) { return !e.done; }).length;
 }
 
 function saveUserData() {
@@ -556,6 +644,8 @@ function saveUserData() {
 
 var $app = document.getElementById("app"), $top = document.getElementById("top"), $bar = document.getElementById("barin"),
     $sheet = document.getElementById("sheet"), $modal = document.getElementById("modal-overlay"), $toast = document.getElementById("toast"), toastT;
+
+var LOGO_SVG = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="lgG" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#2D9CDB"/><stop offset="1" stop-color="#5AD0F0"/></linearGradient></defs><rect width="100" height="100" rx="23" fill="#F4F6F8"/><g stroke="url(#lgG)" stroke-width="10" fill="none"><path d="M38.5 20L76.5 58"/><path d="M58 39.7L75.3 22.5"/><path d="M21.3 36.2L61.5 76.5"/><path d="M41.8 56.9L24.5 74.2"/></g></svg>';
 
 var ICON = {
   back: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>',
@@ -577,12 +667,8 @@ function renderTop() {
   
   var notifAmblem = '<button class="notif-badge-btn" data-a="open-announcements-modal">' + ICON.bell + (hasUnreadAnnouncement ? '<span class="notif-dot"></span>' : '') + '</button>';
 
-  if (state.tab === "mine") {
-    $top.innerHTML = '<div class="top-row"><h1 class="brand">Kullandıklarım</h1>' + notifAmblem + '</div>';
-    return;
-  }
   if (state.tab === "profile") {
-    $top.innerHTML = '<div class="top-row"><h1 class="brand">Hesabım & Profil</h1>' + notifAmblem + '</div>';
+    $top.innerHTML = '<div class="top-row"><h1 class="brand">Profil<span>im</span></h1>' + notifAmblem + '</div>';
     return;
   }
   if (state.view === "admin") {
@@ -602,63 +688,68 @@ function renderTop() {
 
 function viewLogin() {
   var isReg = state.authMode === "register";
-  return '<div style="display:flex; flex-direction:column; align-items:center; text-align:center; margin-top:10px; gap:6px;">' +
-    '<div style="width:56px; height:56px; border-radius:18px; background:var(--accent-soft); color:var(--accent); display:grid; place-items:center;">' + ICON.logo + '</div>' +
-    '<h1 style="font-size:20px; font-weight:800;">Takviye & Yaşam Rehberi</h1>' +
-    '<p class="fine">Kişisel Takip ve Etkileşim Platformu</p>' +
+  return '<div class="lg-hero">' +
+      '<div class="lg-logo">' + LOGO_SVG + '</div>' +
+      '<h1>Takviye <span>Rehberi</span></h1>' +
+      '<p>Takviyelerini tanı, günlük rutinini takip et.</p>' +
+      '<div class="lg-chips"><span>120+ takviye</span><span>Etkileşim uyarıları</span><span>Günlük takip</span></div>' +
     '</div>' +
-    '<div class="block" style="margin-top:10px;">' +
-    '<div class="auth-tabs">' +
-    '<button class="auth-tab ' + (!isReg ? 'active' : '') + '" data-a="switch-auth" data-mode="login">Giriş Yap</button>' +
-    '<button class="auth-tab ' + (isReg ? 'active' : '') + '" data-a="switch-auth" data-mode="register">Kayıt Ol</button>' +
-    '</div>' +
-    '<div style="display:flex; flex-direction:column; gap:10px;">' +
-    
-    (isReg ? 
-      '<div><label class="fine">Kullanıcı Adı</label><input type="text" id="log-username" placeholder="kullanici_adi"></div>' +
-      '<div><label class="fine">E-posta Adresi</label><input type="email" id="log-email" placeholder="ornek@email.com"></div>' :
-      '<div><label class="fine">E-posta Adresi</label><input type="email" id="log-email" placeholder="ornek@email.com"></div>'
-    ) +
 
-    '<div><label class="fine">Şifre</label><input type="password" id="log-pass" placeholder="••••••••"></div>' +
-    (isReg ? '<div><label class="fine">Şifre Tekrarı</label><input type="password" id="log-pass2" placeholder="••••••••"></div>' : '') +
-    
-    (isReg ? '<div style="background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px; font-size:12.5px; color:var(--muted);">' +
-    '<strong>Yasal Uyarı:</strong> Bu platform bilgilendirme ve kişisel <strong>takip amaçlıdır</strong>. Tıbbi teşhis/tedavi içermez. İlaç ve takviye kullanmadan önce doktorunuza danışınız.' +
-    '</div>' +
-    '<label class="check-row" style="font-size:13px;"><input type="checkbox" id="legal-check"> Şartları okudum ve kabul ediyorum.</label>' : '') +
+    '<div class="lg-card">' +
+      '<div class="seg">' +
+        '<button class="' + (!isReg ? 'active' : '') + '" data-a="switch-auth" data-mode="login">Giriş Yap</button>' +
+        '<button class="' + (isReg ? 'active' : '') + '" data-a="switch-auth" data-mode="register">Kayıt Ol</button>' +
+      '</div>' +
 
-    '<div id="log-err" style="color:var(--danger-ink); font-size:13.5px;"></div>' +
-    (!isReg ? 
-      '<button class="btn full" data-a="do-login">Oturum Aç</button>' : 
-      '<button class="btn full" data-a="do-register">Kayıt İşlemini Tamamla</button>') +
-    '</div></div>';
+      (isReg ? '<div><label class="fine">Kullanıcı Adı</label><input type="text" id="log-username" placeholder="kullanici_adi" autocomplete="username" autocapitalize="none"></div>' : '') +
+      '<div><label class="fine">E-posta</label><input type="email" id="log-email" placeholder="ornek@email.com" autocomplete="email" autocapitalize="none"></div>' +
+      '<div><label class="fine">Şifre</label><div class="pw"><input type="password" id="log-pass" placeholder="••••••••" autocomplete="' + (isReg ? 'new-password' : 'current-password') + '"><button type="button" class="pw-eye" data-a="toggle-pass" aria-label="Şifreyi göster">👁</button></div></div>' +
+      (isReg ? '<div><label class="fine">Şifre Tekrarı</label><div class="pw"><input type="password" id="log-pass2" placeholder="••••••••" autocomplete="new-password"><button type="button" class="pw-eye" data-a="toggle-pass" aria-label="Şifreyi göster">👁</button></div></div>' : '') +
+      (!isReg ? '<button type="button" class="lg-link" data-a="forgot-pass">Şifremi unuttum</button>' : '') +
+
+      (isReg ? '<div style="background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:10px; font-size:12.5px; color:var(--muted);">' +
+        '<strong>Yasal Uyarı:</strong> Bu platform bilgilendirme ve kişisel <strong>takip amaçlıdır</strong>. Tıbbi teşhis/tedavi içermez. İlaç ve takviye kullanmadan önce doktorunuza danışınız.' +
+        '</div>' +
+        '<label class="check-row" style="font-size:13px;"><input type="checkbox" id="legal-check"> Şartları okudum ve kabul ediyorum.</label>' : '') +
+
+      '<div id="log-err" style="color:var(--danger-ink); font-size:13.5px; min-height:0;"></div>' +
+      (!isReg ? '<button class="btn lg full" data-a="do-login">Oturum Aç</button>' : '<button class="btn lg full" data-a="do-register">Hesap Oluştur</button>') +
+    '</div>' +
+    '<p class="fine lg-foot">Bu uygulama bilgilendirme amaçlıdır, tıbbi tavsiye yerine geçmez.</p>';
 }
 
 function viewProfile() {
-  var initialChar = esc((userProfile.username || (currentUser ? currentUser.email : "U") || "U").charAt(0).toUpperCase());
-  var photoSrc = safeImg(userProfile.photoUrl);
+  var entries = routineEntries();
+  var total = entries.length;
+  var done = entries.filter(function (e) { return e.done; }).length;
+  var pct = total ? Math.round(done * 100 / total) : 0;
+  var email = currentUser ? (currentUser.email || "") : "";
+  var name = userProfile.username || (email ? email.split("@")[0] : "Kullanıcı");
+  var initialChar = esc(name.charAt(0).toUpperCase());
+  var photoSrc = safeImg(selectedProfileFile !== null ? selectedProfileFile : userProfile.photoUrl);
 
-  return '<div class="block" style="text-align:center; padding:20px;">' +
-    '<div class="profile-avatar-container">' +
-      (photoSrc ? 
-        '<img id="prof-img-preview" src="' + photoSrc + '" class="profile-avatar" alt="Profil">' : 
-        '<div id="prof-img-preview" class="profile-avatar">' + initialChar + '</div>') +
-      '<button class="profile-avatar-upload-btn" onclick="document.getElementById(\'prof-file-input\').click()" title="Fotoğraf Yükle">' + ICON.camera + '</button>' +
+  var hero = '<section class="p-hero">' +
+    '<div class="p-top">' +
+      '<div class="profile-avatar-container">' +
+        (photoSrc ? '<img id="prof-img-preview" src="' + photoSrc + '" class="profile-avatar" alt="Profil">' : '<div id="prof-img-preview" class="profile-avatar">' + initialChar + '</div>') +
+        '<button class="profile-avatar-upload-btn" onclick="document.getElementById(\'prof-file-input\').click()" title="Fotoğraf Yükle">' + ICON.camera + '</button>' +
+      '</div>' +
+      '<input type="file" id="prof-file-input" accept="image/*" style="display:none;" onchange="handleProfileFileSelect(event)">' +
+      '<div class="p-id"><h2>' + esc(name) + '</h2><div>' + esc(email) + '</div></div>' +
+      '<div class="ring" style="--p:' + pct + '"><span>' + done + '/' + total + '</span></div>' +
     '</div>' +
-    '<input type="file" id="prof-file-input" accept="image/*" style="display:none;" onchange="handleProfileFileSelect(event)">' +
-    '<p class="fine" style="margin-bottom:14px;">Profil Fotoğrafını Değiştirmek İçin Kameraya Dokunun</p>' +
+    '<div class="p-stats">' +
+      '<div><b>' + mine.length + '</b><span>Takviye</span></div>' +
+      '<div><b>' + myDrugs.length + '</b><span>İlaç</span></div>' +
+      '<div><b>%' + pct + '</b><span>Bugün</span></div>' +
+    '</div>' +
+    (selectedProfileFile !== null ? '<button class="btn p-save full" data-a="save-profile">Fotoğrafı Kaydet</button>' : '') +
+  '</section>';
 
-    '<div style="display:flex; flex-direction:column; gap:10px; text-align:left;">' +
-      '<div><label class="fine">Kullanıcı Adı (Değiştirilemez)</label><input type="text" id="prof-username" value="' + esc(userProfile.username || '') + '" disabled style="opacity:0.75;"></div>' +
-      '<div><label class="fine">E-posta Adresi (Değiştirilemez)</label><input type="email" value="' + esc(currentUser ? currentUser.email : '') + '" disabled style="opacity:0.75;"></div>' +
-      '<button class="btn full" data-a="save-profile" style="margin-top:6px;">Profili Kaydet</button>' +
-    '</div>' +
-
-    '<div style="margin-top:20px; border-top:1px solid var(--line); padding-top:14px;">' +
-      '<button class="btn ghost small full" data-a="logout">Oturumu Kapat (' + esc(currentUser ? currentUser.email : '') + ')</button>' +
-    '</div>' +
-  '</div>';
+  return hero + viewRoutine() +
+    '<section class="block"><h2>Hesap</h2>' +
+      '<button class="btn ghost full" data-a="logout">Oturumu Kapat</button>' +
+    '</section>';
 }
 
 function handleProfileFileSelect(event) {
@@ -694,19 +785,7 @@ function handleProfileFileSelect(event) {
       
       var compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
       selectedProfileFile = compressedBase64;
-
-      var preview = document.getElementById("prof-img-preview");
-      if (preview) {
-        if (preview.tagName.toLowerCase() === "img") {
-          preview.src = compressedBase64;
-        } else {
-          var newImg = document.createElement("img");
-          newImg.id = "prof-img-preview";
-          newImg.src = compressedBase64;
-          newImg.className = "profile-avatar";
-          preview.parentNode.replaceChild(newImg, preview);
-        }
-      }
+      render(false);
     };
     img.src = e.target.result;
   };
@@ -802,49 +881,42 @@ function viewAdmin() {
     '<div style="max-height:240px; overflow-y:auto; margin-top:6px;">' + listHtml + '</div></div>';
 }
 
-function viewMine() {
+function viewRoutine() {
   var alerts = [];
-  INTERACTIONS.forEach(function(item) {
-    var hasA = mine.some(function(m){return m.id === item.a;}) || myDrugs.some(function(d){return d.id === item.a;});
-    var hasB = mine.some(function(m){return m.id === item.b;}) || myDrugs.some(function(d){return d.id === item.b;});
+  INTERACTIONS.forEach(function (item) {
+    var hasA = mine.some(function (m) { return m.id === item.a; }) || myDrugs.some(function (d) { return d.id === item.a; });
+    var hasB = mine.some(function (m) { return m.id === item.b; }) || myDrugs.some(function (d) { return d.id === item.b; });
     if (hasA && hasB) alerts.push(item.msg);
   });
+  var alertHtml = alerts.map(function (msg) { return '<div class="alert-banner"><span>' + esc(msg) + '</span></div>'; }).join("");
 
-  var alertHtml = alerts.map(function(msg){ return '<div class="alert-banner"><span>' + msg + '</span></div>'; }).join("");
-  
-  var suppItems = mine.map(function (m) {
-    var s = SUPPS[m.id]; if (!s) return "";
-    return '<div class="item"><div class="item-top"><div><h3>' + esc(s.name) + '</h3><div class="fine">Hatırlatma: ' + esc(m.time) + '</div></div>' +
-      '<button class="btn ghost small" data-a="remove-supp" data-id="' + esc(m.id) + '">Çıkar</button></div>' +
-      '<label class="check-row"><input type="checkbox" data-a="toggle-done-supp" data-id="' + esc(m.id) + '" ' + (m.done ? "checked" : "") + '> Bugün Aldım</label></div>';
-  }).join("");
-
-  var drugItems = myDrugs.map(function (d) {
-    var dr = DRUGS[d.id]; if (!dr) return "";
-    return '<div class="item" style="border-left:4px solid var(--accent);"><div class="item-top"><div><h3>' + dr.name + '</h3><div class="fine">' + esc(dr.group) + ' · Saat: ' + esc(d.time) + '</div></div>' +
-      '<button class="btn ghost small" data-a="remove-drug" data-id="' + esc(d.id) + '">Çıkar</button></div>' +
-      '<label class="check-row"><input type="checkbox" data-a="toggle-done-drug" data-id="' + esc(d.id) + '" ' + (d.done ? "checked" : "") + '> Bugün Aldım</label></div>';
-  }).join("");
+  var entries = routineEntries();
+  var listHtml = entries.length ? entries.map(function (e) {
+    return '<div class="rt-item' + (e.done ? ' done' : '') + '">' +
+      '<div class="rt-time">' + esc(e.time || "--:--") + '</div>' +
+      '<div class="rt-body"><h3>' + esc(e.name) + '</h3><div class="fine">' + esc(e.sub) + '</div></div>' +
+      '<label class="rt-check"><input type="checkbox" data-a="toggle-done-' + e.type + '" data-id="' + esc(e.id) + '" ' + (e.done ? "checked" : "") + ' aria-label="Bugün aldım"></label>' +
+      '<button class="rt-x" data-a="remove-' + e.type + '" data-id="' + esc(e.id) + '" aria-label="Çıkar">✕</button>' +
+    '</div>';
+  }).join("") : '<div class="empty">Rutinin henüz boş.<br>Keşfet sekmesinden bir takviye seçip <strong>Rutinime Ekle</strong> diyebilir ya da ilaç ekleyebilirsin.</div>';
 
   return alertHtml +
-    '<div style="display:flex; justify-content:space-between; align-items:center;">' +
-    '<p style="font-weight:700;">Günlük Rutinim:</p><button class="btn small" data-a="open-drug-sheet">+ İlaç / Etken Madde Ekle</button></div>' +
-    '<div class="list">' + suppItems + drugItems + '</div>';
+    '<div class="sec-head"><h2>Günlük Rutinim</h2><button class="btn small" data-a="open-drug-sheet">+ İlaç Ekle</button></div>' +
+    '<div class="list">' + listHtml + '</div>';
 }
 
 function renderBar() {
   if (state.view === "login" || state.view === "admin" || state.view === "verify_notice" || state.view === "edit_supp") return;
   if (state.view === "detail" && state.tab === "discover") {
-    var m = mine.find(function(x){return x.id === state.supp;});
+    var m = mine.find(function (x) { return x.id === state.supp; });
     $bar.innerHTML = '<button class="btn full" data-a="start" data-id="' + esc(state.supp) + '">' +
       (m ? "Listede Ekli (Saati Güncelle)" : "Rutinime Ekle") + '</button>';
     return;
   }
-  var totalBadge = mine.length + myDrugs.length;
+  var pend = pendingCount();
   $bar.innerHTML =
     '<button class="tab" data-a="tab" data-id="discover"' + (state.tab === "discover" ? ' aria-current="page"' : "") + '>' + ICON.search + 'Keşfet</button>' +
-    '<button class="tab" data-a="tab" data-id="mine"' + (state.tab === "mine" ? ' aria-current="page"' : "") + '>' + ICON.pill + 'Kullandıklarım' + (totalBadge ? '<span class="badge">' + totalBadge + '</span>' : "") + '</button>' +
-    '<button class="tab" data-a="tab" data-id="profile"' + (state.tab === "profile" ? ' aria-current="page"' : "") + '>' + ICON.user + 'Profil</button>';
+    '<button class="tab" data-a="tab" data-id="profile"' + (state.tab === "profile" ? ' aria-current="page"' : "") + '>' + ICON.user + 'Profilim' + (pend ? '<span class="badge">' + pend + '</span>' : "") + '</button>';
 }
 
 function viewEditSupp() {
@@ -898,7 +970,7 @@ function render(scroll) {
   if (state.view === "admin") { $app.innerHTML = viewAdmin(); }
   else if (state.view === "edit_supp") { $app.innerHTML = viewEditSupp(); }
   else { 
-    $app.innerHTML = state.tab === "mine" ? viewMine() : (state.tab === "profile" ? viewProfile() : (state.view === "home" ? viewHome() : viewDetail())); 
+    $app.innerHTML = (state.tab === "profile" ? viewProfile() : (state.view === "home" ? viewHome() : viewDetail())); 
   }
   renderBar();
   if (scroll) window.scrollTo(0, 0);
@@ -992,6 +1064,19 @@ document.addEventListener("click", function (e) {
   if (a === "close-modal") { $modal.hidden = true; }
   else if (a === "open-announcements-modal") { openAnnouncementsModal(); }
   else if (a === "switch-auth") { state.authMode = el.dataset.mode; render(false); }
+  else if (a === "toggle-pass") {
+    var pin = el.parentNode.querySelector("input");
+    if (pin) { pin.type = pin.type === "password" ? "text" : "password"; }
+  }
+  else if (a === "forgot-pass") {
+    var fe = document.getElementById("log-email").value.trim();
+    var ferr = document.getElementById("log-err");
+    if (!fe) { ferr.textContent = "Önce e-posta adresini yaz."; return; }
+    auth.sendPasswordResetEmail(fe).then(function () {
+      ferr.textContent = "";
+      toast("Bu e-posta kayıtlıysa sıfırlama bağlantısı gönderildi.");
+    }).catch(function () { ferr.textContent = "Geçerli bir e-posta adresi yaz."; });
+  }
   else if (a === "do-login" || a === "do-register") {
     var emailInput = document.getElementById("log-email").value.trim();
     var pass = document.getElementById("log-pass").value;
@@ -1172,8 +1257,8 @@ document.addEventListener("click", function (e) {
   }
   else if (a === "remove-supp") { mine = mine.filter(function(x){return x.id!==id;}); saveUserData(); render(false); }
   else if (a === "remove-drug") { myDrugs = myDrugs.filter(function(x){return x.id!==id;}); saveUserData(); render(false); }
-  else if (a === "toggle-done-supp") { var m2 = mine.find(function(x){return x.id===id;}); if(m2){m2.done=e.target.checked; saveUserData();} }
-  else if (a === "toggle-done-drug") { var d2 = myDrugs.find(function(x){return x.id===id;}); if(d2){d2.done=e.target.checked; saveUserData();} }
+  else if (a === "toggle-done-supp") { var m2 = mine.find(function(x){return x.id===id;}); if(m2){m2.done=e.target.checked; m2.day=todayStr(); saveUserData(); render(false);} }
+  else if (a === "toggle-done-drug") { var d2 = myDrugs.find(function(x){return x.id===id;}); if(d2){d2.done=e.target.checked; d2.day=todayStr(); saveUserData(); render(false);} }
   else if (a === "save-new-supp") {
     if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
     var sName = document.getElementById("adm-name").value;
