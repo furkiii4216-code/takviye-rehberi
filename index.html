@@ -167,6 +167,23 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
   width: 100%; max-width: 500px; background: var(--surface); border-radius: 20px 20px 0 0; border: 1px solid var(--line);
   padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; max-height: 80vh; overflow-y: auto;
 }
+
+/* EN ÖN PLANDA AÇILAN POPUP / DUYURU PENCERESİ */
+#modal-overlay {
+  position: fixed; inset: 0; z-index: 100; background: rgba(0, 0, 0, 0.65);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+#modal-overlay[hidden] { display: none !important; }
+.modal-box {
+  width: 100%; max-width: 400px; background: var(--surface); border-radius: 20px; border: 1px solid var(--line);
+  padding: 24px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  animation: modalScale 0.2s ease-out;
+}
+@keyframes modalScale {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 #toast {
   position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(76px + env(safe-area-inset-bottom, 0px)); z-index: 50;
   background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 13.5px;
@@ -183,6 +200,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 </div>
 <div id="bar" hidden><div class="in" id="barin"></div></div>
 <div id="sheet" hidden></div>
+<div id="modal-overlay" hidden></div>
 <div id="toast" role="status" hidden></div>
 
 <script>
@@ -208,7 +226,7 @@ var DEFAULT_SUPPS = {
   d3k2: { name: "D3 + K2 Vitamini", alt: "Kolekalsiferol + K2 (MK-7)", summary: "Kemik mineralizasyonu ve bağışıklık desteği.", ev: 4, evLabel: "Çok güçlü", who: ["Güneş görmeyenler", "Kemik ve diş sağlığını destekleyenler"], care: ["Yüksek doz kalsiyum birikimine dikkat edilmelidir."], does: ["Kalsiyumun kemiklere taşınmasını destekler."], dose: { big: "1000-2000 IU", per: "günde" }, extraBlocks: [] },
   mg_bis: { name: "Magnezyum Bisglisinat", alt: "Glisin Şelat Magnezyum", summary: "Kas gevşemesi, sinir sistemi ve kaliteli uyku.", ev: 4, evLabel: "Çok güçlü", who: ["Kas krampları ve uyku sorunu yaşayanlar"], care: ["Böbrek rahatsızlığı olanlar uzmana danışmalıdır."], does: ["Gaba reseptörlerini uyararak rahatlama sağlar."], dose: { big: "200-400 mg", per: "akşam" }, extraBlocks: [] },
   mg_cit: { name: "Magnezyum Sitrat", alt: "Sitrik Asit Magnezyum", summary: "Enerji metabolizması ve sindirim hareketliliği.", ev: 4, evLabel: "Çok güçlü", who: ["Kabızlık ve kas yorgunluğu çekenler"], care: ["Hassas bağırsaklarda ishale yol açabilir."], does: ["Kas fonksiyonunu düzenler, bağırsakları çalıştırır."], dose: { big: "200-300 mg", per: "günde" }, extraBlocks: [] },
-  mg_mal: { name: "Magnezyum Malat", alt: "Malik Asit Bağlı Magnezyum", summary: "Kas enerjisi ve kronik yorgunluk desteği.", ev: 3, evLabel: "Orta-Güçlü", who: ["Gün içinde enerjisi düşenler", "Fibromiyalji hastaları"], care: ["Uykusuzluk yapmaması için akşam alınmamalıdır."], dose: { big: "200-400 mg", per: "sabah/öğle" }, extraBlocks: [] },
+  mg_mal: { name: "Magnezyum Malat", alt: "Malik Asit Bağlı Magnezyum", summary: "Kas enerjisi ve kronik yorgunluk desteği.", ev: 3, evLabel: "Orta-Güçlü", who: ["Gün içinde enerjisi düşenler", "Fibromiyalji hastaları"], care: ["Uykusuzluk yapmaması için akşam alınmamalıdır."], does: ["Kas hücrelerinde enerji sentezine katılır."], dose: { big: "200-400 mg", per: "sabah/öğle" }, extraBlocks: [] },
   omega3: { name: "Omega-3 (EPA/DHA)", alt: "Trigliserit Form Balık Yağı", summary: "Kalp-damar sağlığı, beyin ve göz desteği.", ev: 4, evLabel: "Çok güçlü", who: ["Balık tüketimi az olanlar", "Zihinsel odaklanma isteyenler"], care: ["Yüksek dozda kan sulandırıcı etki yapabilir."], does: ["Enflamasyonu baskılar, trigliserit seviyesini dengeler."], dose: { big: "1000-2000 mg", per: "günde" }, extraBlocks: [] },
   b12_met: { name: "B12 Vitamini (Metilkobalamin)", alt: "Aktif Kobalamin Formu", summary: "Sinir sistemi, hafıza ve alyuvar oluşumu.", ev: 4, evLabel: "Çok güçlü", who: ["Unutkanlık yaşayanlar", "Vejetaryen ve veganlar"], care: ["Eksikliği doktor kontrolünde saptanmalıdır."], does: ["Miyelin kılıf yapımını ve enerji metabolizmasını destekler."], dose: { big: "1000 mcg", per: "günde / haftada" }, extraBlocks: [] },
   coq10: { name: "Koenzim Q10 (Ubikinol)", alt: "Aktif CoQ10", summary: "Hücresel enerji üretimi ve kalp sağlığı.", ev: 3, evLabel: "Orta-Güçlü", who: ["Statin grubu ilaç kullananlar", "30 yaş üzeri bireyler"], care: ["Gece geç saatlerde uykusuzluk yapabilir."], does: ["Mitokondride ATP üretimini artırır."], dose: { big: "100-200 mg", per: "günde" }, extraBlocks: [] },
@@ -388,10 +406,15 @@ function initCloudSync() {
     render(false);
   }, function(err) { console.log(err); });
 
-  // Canlı Duyuru Dinleyicisi
+  // Canlı Duyuru ve Anlık Bildirim Dinleyicisi (En önde popup açar)
   db.collection("announcements").orderBy("date", "desc").limit(1).onSnapshot(function(snapshot) {
     if (!snapshot.empty) {
-      latestAnnouncement = snapshot.docs[0].data();
+      var docData = snapshot.docs[0].data();
+      // Eğer yeni bir duyuru geldiyse veya sayfa ilk açıldıysa popup göster
+      if (!latestAnnouncement || latestAnnouncement.title !== docData.title) {
+        latestAnnouncement = docData;
+        showPopupModal(docData.title, docData.message);
+      }
       render(false);
     }
   }, function(err) { console.log(err); });
@@ -457,7 +480,7 @@ function saveUserData() {
 }
 
 var $app = document.getElementById("app"), $top = document.getElementById("top"), $bar = document.getElementById("barin"),
-    $sheet = document.getElementById("sheet"), $toast = document.getElementById("toast"), toastT;
+    $sheet = document.getElementById("sheet"), $modal = document.getElementById("modal-overlay"), $toast = document.getElementById("toast"), toastT;
 
 var ICON = {
   back: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>',
@@ -534,7 +557,7 @@ function viewVerifyNotice() {
 function viewHome() {
   var announceHtml = "";
   if (latestAnnouncement) {
-    announceHtml = '<div class="block good" style="border-left:4px solid var(--accent);">' +
+    announceHtml = '<div class="block good" style="border-left:4px solid var(--accent); cursor:pointer;" data-a="show-latest-announcement">' +
       '<div style="display:flex; justify-content:space-between; align-items:center;"><strong>📢 Duyuru: ' + latestAnnouncement.title + '</strong><span class="fine">' + latestAnnouncement.timeStr + '</span></div>' +
       '<p style="font-size:14px; margin-top:4px;">' + latestAnnouncement.message + '</p></div>';
   }
@@ -727,6 +750,16 @@ function toast(msg) {
   clearTimeout(toastT); toastT = setTimeout(function () { $toast.hidden = true; }, 2600);
 }
 
+/* EN ÖN PLANDA AÇILAN POPUP MODAL (TAMAMA BASINCA KAYBOLUR) */
+function showPopupModal(title, message) {
+  $modal.innerHTML = '<div class="modal-box">' +
+    '<h3 style="color:var(--accent);">📢 ' + title + '</h3>' +
+    '<p style="font-size:14.5px; line-height:1.4;">' + message + '</p>' +
+    '<button class="btn full" data-a="close-modal">Tamam</button>' +
+    '</div>';
+  $modal.hidden = false;
+}
+
 function openSheet(id) {
   var s = SUPPS[id], m = mine.find(function(x){return x.id===id;});
   $sheet.dataset.id = id;
@@ -758,10 +791,15 @@ function openDrugTimeSheet(did) {
 
 document.addEventListener("click", function (e) {
   if (e.target === $sheet) { $sheet.hidden = true; return; }
+  if (e.target === $modal) { $modal.hidden = true; return; }
   var el = e.target.closest("[data-a]"); if (!el) return;
   var a = el.dataset.a, id = el.dataset.id;
 
-  if (a === "switch-auth") { state.authMode = el.dataset.mode; render(false); }
+  if (a === "close-modal") { $modal.hidden = true; }
+  else if (a === "show-latest-announcement") {
+    if (latestAnnouncement) { showPopupModal(latestAnnouncement.title, latestAnnouncement.message); }
+  }
+  else if (a === "switch-auth") { state.authMode = el.dataset.mode; render(false); }
   else if (a === "do-login" || a === "do-register") {
     var email = document.getElementById("log-email").value;
     var pass = document.getElementById("log-pass").value;
