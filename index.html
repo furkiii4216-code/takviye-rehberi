@@ -168,7 +168,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
   padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; max-height: 80vh; overflow-y: auto;
 }
 
-/* EN ÖN PLANDA AÇILAN POPUP / DUYURU PENCERESİ */
+/* KÜÇÜK BİLDİRİM AMBLEMİ & MODAL */
 #modal-overlay {
   position: fixed; inset: 0; z-index: 100; background: rgba(0, 0, 0, 0.65);
   display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -177,11 +177,19 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 .modal-box {
   width: 100%; max-width: 400px; background: var(--surface); border-radius: 20px; border: 1px solid var(--line);
   padding: 24px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-  animation: modalScale 0.2s ease-out;
+  animation: modalScale 0.2s ease-out; max-height: 80vh; overflow-y: auto;
 }
 @keyframes modalScale {
   from { transform: scale(0.9); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
+}
+
+.notif-badge-btn {
+  position: relative; width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface); display: grid; place-items: center; color: var(--accent); cursor: pointer;
+}
+.notif-dot {
+  position: absolute; top: -3px; right: -3px; width: 10px; height: 10px; background: var(--danger-ink); border-radius: 50%; border: 2px solid var(--surface);
 }
 
 #toast {
@@ -299,7 +307,7 @@ var suppListAdditional = [
   ["Mangan Şelat", "Kıkırdak matris oluşumu", 3, "2 mg"],
   ["Bakır Şelat", "Demir emilimi ve elastin yapımı", 3, "1-2 mg"],
   ["Molibden", "Sülfit metabolizması enzimi", 3, "75 mcg"],
-  ["Vanadyum", "Glikoz tolerans faktörü desteği", 2, "100 mcg"],
+  ["Vanadyum", "Glikoz tolerans faktörü destek", 2, "100 mcg"],
   ["A Vitamini (Retinol)", "Görme netliği ve mukoza zarı", 4, "3000 IU"],
   ["E Vitamini (Tokoferol)", "Hücre zarı koruyucu antioksidan", 4, "200 IU"],
   ["K1 Vitamini", "Kan pıhtılaşma mekanizması", 4, "100 mcg"],
@@ -395,7 +403,8 @@ var currentUser = null;
 var state = { view: "login", authMode: "login", tab: "discover", supp: null, search: "", editId: null };
 var mine = [];
 var myDrugs = [];
-var latestAnnouncement = null;
+var announcementsList = []; // Tüm duyuruları tutmak için dizi
+var hasUnreadAnnouncement = false;
 
 function initCloudSync() {
   if (typeof db === "undefined") return;
@@ -406,17 +415,17 @@ function initCloudSync() {
     render(false);
   }, function(err) { console.log(err); });
 
-  // Canlı Duyuru ve Anlık Bildirim Dinleyicisi (En önde popup açar)
-  db.collection("announcements").orderBy("date", "desc").limit(1).onSnapshot(function(snapshot) {
-    if (!snapshot.empty) {
-      var docData = snapshot.docs[0].data();
-      // Eğer yeni bir duyuru geldiyse veya sayfa ilk açıldıysa popup göster
-      if (!latestAnnouncement || latestAnnouncement.title !== docData.title) {
-        latestAnnouncement = docData;
-        showPopupModal(docData.title, docData.message);
-      }
-      render(false);
+  // Canlı Duyuruları Dinle ve Amblemi Güncelle
+  db.collection("announcements").orderBy("date", "desc").onSnapshot(function(snapshot) {
+    announcementsList = [];
+    snapshot.forEach(function(doc) {
+      announcementsList.push(doc.data());
+    });
+    if (announcementsList.length > 0) {
+      hasUnreadAnnouncement = true;
+      showPopupModal(announcementsList[0].title, announcementsList[0].message);
     }
+    render(false);
   }, function(err) { console.log(err); });
 }
 
@@ -487,7 +496,8 @@ var ICON = {
   go: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>',
   search: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
   pill: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="8.5" width="18" height="7" rx="3.5" transform="rotate(-35 12 12)"/><path d="M9.2 7.4l5.6 9.2" /></svg>',
-  logo: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="6" rx="3" transform="rotate(-30 12 12)"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>'
+  logo: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="6" rx="3" transform="rotate(-30 12 12)"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>',
+  bell: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'
 };
 
 function meter(n) {
@@ -496,23 +506,26 @@ function meter(n) {
 
 function renderTop() {
   if (state.view === "login" || state.view === "verify_notice") { $top.innerHTML = ''; return; }
+  
+  var notifAmblem = '<button class="notif-badge-btn" data-a="open-announcements-modal">' + ICON.bell + (hasUnreadAnnouncement ? '<span class="notif-dot"></span>' : '') + '</button>';
+
   if (state.tab === "mine") {
-    $top.innerHTML = '<div class="top-row"><h1 class="brand">Kullandıklarım & <span>Etkileşim</span></h1></div>';
+    $top.innerHTML = '<div class="top-row"><h1 class="brand">Kullandıklarım</h1>' + notifAmblem + '</div>';
     return;
   }
   if (state.view === "admin") {
-    $top.innerHTML = '<div class="top-row"><button class="back" data-a="back">' + ICON.back + '</button><div class="top-title">Yönetim ve Bildirim Paneli</div></div>';
+    $top.innerHTML = '<div class="top-row"><button class="back" data-a="back">' + ICON.back + '</button><div class="top-title">Yönetim ve Bildirim Paneli</div>' + notifAmblem + '</div>';
     return;
   }
   if (state.view === "home") {
     var adminBtn = (currentUser && currentUser.email === ADMIN_EMAIL) ? '<button class="btn small" data-a="go-admin">Yönetim</button>' : '';
-    $top.innerHTML = '<div class="top-row"><div class="brand">Takviye<span>Rehberi</span></div>' + adminBtn + '</div>' +
+    $top.innerHTML = '<div class="top-row"><div class="brand">Takviye<span>Rehberi</span></div><div style="display:flex; gap:8px; align-items:center;">' + adminBtn + notifAmblem + '</div></div>' +
       '<div class="search-box"><span class="search-icon">' + ICON.search + '</span>' +
       '<input type="text" id="search-input" placeholder="120+ Takviye ve içerik ara..." value="' + state.search + '"></div>';
     return;
   }
   var title = SUPPS[state.supp] ? SUPPS[state.supp].name : "";
-  $top.innerHTML = '<div class="top-row"><button class="back" data-a="back">' + ICON.back + '</button><div class="top-title">' + title + '</div></div>';
+  $top.innerHTML = '<div class="top-row"><button class="back" data-a="back">' + ICON.back + '</button><div class="top-title">' + title + '</div>' + notifAmblem + '</div>';
 }
 
 function viewLogin() {
@@ -555,13 +568,6 @@ function viewVerifyNotice() {
 }
 
 function viewHome() {
-  var announceHtml = "";
-  if (latestAnnouncement) {
-    announceHtml = '<div class="block good" style="border-left:4px solid var(--accent); cursor:pointer;" data-a="show-latest-announcement">' +
-      '<div style="display:flex; justify-content:space-between; align-items:center;"><strong>📢 Duyuru: ' + latestAnnouncement.title + '</strong><span class="fine">' + latestAnnouncement.timeStr + '</span></div>' +
-      '<p style="font-size:14px; margin-top:4px;">' + latestAnnouncement.message + '</p></div>';
-  }
-
   var keys = Object.keys(SUPPS);
   if (state.search.trim() !== "") {
     var q = state.search.toLowerCase();
@@ -577,7 +583,7 @@ function viewHome() {
       '<span class="go">' + ICON.go + '</span></button>';
   }).join("");
 
-  return announceHtml + '<div class="list">' + items + '</div>';
+  return '<div class="list">' + items + '</div>';
 }
 
 function viewDetail() {
@@ -750,12 +756,40 @@ function toast(msg) {
   clearTimeout(toastT); toastT = setTimeout(function () { $toast.hidden = true; }, 2600);
 }
 
-/* EN ÖN PLANDA AÇILAN POPUP MODAL (TAMAMA BASINCA KAYBOLUR) */
+// BİLDİRİM / DUYURU POPUP PENCERESİ
 function showPopupModal(title, message) {
   $modal.innerHTML = '<div class="modal-box">' +
     '<h3 style="color:var(--accent);">📢 ' + title + '</h3>' +
     '<p style="font-size:14.5px; line-height:1.4;">' + message + '</p>' +
     '<button class="btn full" data-a="close-modal">Tamam</button>' +
+    '</div>';
+  $modal.hidden = false;
+}
+
+// TÜM GEÇMİŞ DUYURULARI LİSTELEYEN MODAL
+function openAnnouncementsModal() {
+  hasUnreadAnnouncement = false; // Okundu olarak işaretle, kırmızı noktayı kaldır
+  renderTop();
+
+  var listHtml = "";
+  if (announcementsList.length === 0) {
+    listHtml = '<p class="fine" style="text-align:center; padding:15px;">Henüz bir duyuru bulunmuyor.</p>';
+  } else {
+    listHtml = announcementsList.map(function(item) {
+      return '<div style="background:var(--surface-2); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:4px; margin-bottom:8px;">' +
+        '<div style="display:flex; justify-content:space-between; align-items:center;"><strong>' + item.title + '</strong><span class="fine">' + (item.timeStr || '') + '</span></div>' +
+        '<p style="font-size:14px;">' + item.message + '</p>' +
+        '</div>';
+    }).join("");
+  }
+
+  $modal.innerHTML = '<div class="modal-box">' +
+    '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+    '<h3>📢 Eski Duyurular & Bildirimler</h3>' +
+    '<button class="btn small ghost" data-a="close-modal">✕</button>' +
+    '</div>' +
+    '<div style="max-height:50vh; overflow-y:auto; display:flex; flex-direction:column; gap:6px;">' + listHtml + '</div>' +
+    '<button class="btn full" data-a="close-modal">Kapat</button>' +
     '</div>';
   $modal.hidden = false;
 }
@@ -796,9 +830,7 @@ document.addEventListener("click", function (e) {
   var a = el.dataset.a, id = el.dataset.id;
 
   if (a === "close-modal") { $modal.hidden = true; }
-  else if (a === "show-latest-announcement") {
-    if (latestAnnouncement) { showPopupModal(latestAnnouncement.title, latestAnnouncement.message); }
-  }
+  else if (a === "open-announcements-modal") { openAnnouncementsModal(); }
   else if (a === "switch-auth") { state.authMode = el.dataset.mode; render(false); }
   else if (a === "do-login" || a === "do-register") {
     var email = document.getElementById("log-email").value;
