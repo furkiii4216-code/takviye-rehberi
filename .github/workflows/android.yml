@@ -23,6 +23,9 @@ jobs:
       - name: Bagimliliklari kur
         run: npm install
 
+      - name: Alarm eklentisini kur
+        run: npm install @capacitor/local-notifications@^7.0.0
+
       - name: Android projesini olustur
         run: npx cap add android
 
@@ -35,11 +38,13 @@ jobs:
           fi
           printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
 
-      - name: Bildirim iznini manifeste ekle
+      - name: Izinleri manifeste ekle
         run: |
           M=android/app/src/main/AndroidManifest.xml
-          LINE='<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />'
-          grep -q POST_NOTIFICATIONS "$M" || sed -i "s|<application|${LINE}<application|" "$M"
+          for P in POST_NOTIFICATIONS USE_EXACT_ALARM SCHEDULE_EXACT_ALARM RECEIVE_BOOT_COMPLETED VIBRATE; do
+            grep -q "android.permission.$P" "$M" || sed -i "s|<application|<uses-permission android:name=\"android.permission.$P\" /><application|" "$M"
+          done
+          grep -c "uses-permission" "$M"
 
       - name: Senkronize et
         run: npx cap sync android
