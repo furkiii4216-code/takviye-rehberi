@@ -23,8 +23,8 @@ jobs:
       - name: Bagimliliklari kur
         run: npm install
 
-      - name: Alarm eklentisini kur
-        run: npm install @capacitor/local-notifications@^7.0.0
+      - name: Alarm ve geri tusu eklentilerini kur
+        run: npm install @capacitor/local-notifications@^7.0.0 @capacitor/app@^7.0.0
 
       - name: Android projesini olustur
         run: npx cap add android
