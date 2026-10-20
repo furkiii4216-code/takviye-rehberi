@@ -278,6 +278,16 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 .rt-check { display: grid; place-items: center; width: 40px; height: 40px; cursor: pointer; }
 .rt-check input { width: 24px; height: 24px; accent-color: var(--accent); cursor: pointer; }
 .rt-x { width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 14px; }
+.rt-drug { grid-template-columns: auto 1fr auto; }
+.rt-drug-tools { display: flex; align-items: center; gap: 6px; }
+.rt-alarm { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--accent); font-size: 17px; }
+.rt-alarm.off { color: var(--muted); opacity: .65; }
+.drug-times { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+.drug-times span { background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 2px 7px; font: 600 11px var(--font-mono); }
+.step-dots { display: flex; justify-content: center; gap: 6px; }
+.step-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.step-dots i.on { background: var(--accent); }
+.day-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
 .empty { text-align: center; padding: 22px 16px; border: 1.5px dashed var(--line); border-radius: 18px; color: var(--muted); font-size: 14px; }
 
 /* ---------- SADE GİRİŞ ---------- */
@@ -661,6 +671,14 @@ function loadUserData() {
   var t = todayStr();
   mine.forEach(function (x) { if (x.day !== t) x.done = false; });
   myDrugs.forEach(function (x) { if (x.day !== t) x.done = false; });
+  myDrugs.forEach(function (x) {
+    if (!Array.isArray(x.times)) x.times = x.time ? [x.time] : ["09:00"];
+    x.times = x.times.filter(function (v) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(v); });
+    if (!x.times.length) x.times = ["09:00"];
+    if (typeof x.alarmEnabled !== "boolean") x.alarmEnabled = true;
+    if (!Array.isArray(x.days)) x.days = [0, 1, 2, 3, 4, 5, 6];
+    if (!x.taken || typeof x.taken !== "object") x.taken = {};
+  });
   render();
   rescheduleAlarms();
 }
@@ -676,7 +694,10 @@ function routineEntries() {
   });
   myDrugs.forEach(function (d) {
     var dr = DRUGS[d.id]; if (!dr) return;
-    list.push({ type: "drug", id: d.id, time: d.time || "", done: !!d.done, name: dr.name, sub: dr.group });
+    var today = new Date().getDay();
+    var taken = d.taken && d.taken[todayStr()] || [];
+    var allTaken = d.times.every(function (tm) { return taken.indexOf(tm) !== -1; });
+    list.push({ type: "drug", id: d.id, time: (d.times || [d.time || ""])[0], times: d.times || [d.time || ""], days: d.days || [0,1,2,3,4,5,6], done: allTaken, alarmEnabled: d.alarmEnabled !== false, name: dr.name, sub: dr.group });
   });
   list.sort(function (a, b) { return a.time < b.time ? -1 : (a.time > b.time ? 1 : 0); });
   return list;
@@ -1022,6 +1043,10 @@ function viewRoutine() {
 
   var entries = routineEntries();
   var listHtml = entries.length ? entries.map(function (e) {
+    if (e.type === "drug") return '<div class="rt-item rt-drug' + (e.done ? ' done' : '') + '">' +
+      '<div class="rt-time">💊</div><div class="rt-body"><h3>' + esc(e.name) + '</h3><div class="fine">' + esc(e.sub) + '</div><div class="fine">' + (e.days.length === 7 ? 'Her gün' : esc(e.days.map(function (day) { return DAY_NAMES[day]; }).join(', '))) + '</div><div class="drug-times">' + e.times.map(function (tm) { return '<span>' + esc(tm) + '</span>'; }).join("") + '</div>' + (e.alarmEnabled ? '' : '<div class="fine">Alarm kapalı</div>') + '</div>' +
+      '<div class="rt-drug-tools"><button class="rt-alarm' + (e.alarmEnabled ? '' : ' off') + '" data-a="toggle-drug-alarm" data-id="' + esc(e.id) + '" aria-label="Bu ilaç için alarmı ' + (e.alarmEnabled ? 'kapat' : 'aç') + '">' + (e.alarmEnabled ? '🔔' : '🔕') + '</button><button class="rt-x" data-a="remove-drug" data-id="' + esc(e.id) + '" aria-label="Çıkar">✕</button></div>' +
+    '</div>';
     return '<div class="rt-item' + (e.done ? ' done' : '') + '">' +
       '<div class="rt-time">' + esc(e.time || "--:--") + '</div>' +
       '<div class="rt-body"><h3>' + esc(e.name) + '</h3><div class="fine">' + esc(e.sub) + '</div></div>' +
@@ -1181,11 +1206,30 @@ function openDrugSheet() {
   $sheet.hidden = false; syncGuard();
 }
 
+var drugDraft = { id: "", days: [0,1,2,3,4,5,6], frequency: 1 };
+var DAY_NAMES = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+function renderDrugStep(step) {
+  var d = DRUGS[drugDraft.id] || {}, existing = myDrugs.find(function (x) { return x.id === drugDraft.id; });
+  var title = '<h2>İlaç Hatırlatması Ekle</h2><div class="step-dots"><i class="' + (step >= 1 ? 'on' : '') + '"></i><i class="' + (step >= 2 ? 'on' : '') + '"></i><i class="' + (step >= 3 ? 'on' : '') + '"></i></div>';
+  if (step === 1) {
+    $sheet.innerHTML = '<div class="sheet-in">' + title + '<p class="fine">1. adım · İlaç seçimi</p><h3>' + esc(d.name || '') + '</h3><p class="fine">' + esc(d.desc || '') + '</p><button class="btn full" data-a="drug-step" data-step="2">Sonraki</button><button class="btn ghost full" data-a="close">Vazgeç</button></div>';
+  } else if (step === 2) {
+    var checks = DAY_NAMES.map(function (n, i) { return '<label class="check-row"><input type="checkbox" data-drug-day="' + i + '" ' + (drugDraft.days.indexOf(i) >= 0 ? 'checked' : '') + '> ' + n + '</label>'; }).join('');
+    $sheet.innerHTML = '<div class="sheet-in">' + title + '<p class="fine">2. adım · Hangi günlerde hatırlatalım?</p><div class="day-grid">' + checks + '</div><button class="btn full" data-a="drug-step" data-step="3">Sonraki</button><button class="btn ghost full" data-a="drug-step" data-step="1">Önceki</button></div>';
+  } else {
+    var times = existing && existing.times ? existing.times.slice() : ["09:00"];
+    var values = drugDraft.times || times;
+    var timeFields = values.map(function (tm, i) { return '<label class="fine">Hatırlatma ' + (i + 1) + '<input type="time" data-drug-time="' + i + '" value="' + esc(tm) + '"></label>'; }).join('');
+    var daysText = drugDraft.days.map(function (i) { return DAY_NAMES[i]; }).join(', ');
+    $sheet.innerHTML = '<div class="sheet-in">' + title + '<p class="fine">3. adım · Günlük hatırlatma saatleri</p><label class="fine">Günde kaç kez?<select id="drug-frequency"><option value="1">1 kez</option><option value="2">2 kez</option><option value="3">3 kez</option><option value="4">4 kez</option></select></label><div id="drug-time-fields">' + timeFields + '</div><p class="fine">' + esc(daysText) + ' · Bitiş tarihi yok, alarmı istediğin zaman kapatabilirsin.</p><button class="btn full" data-a="save-drug">' + (existing ? 'Değişiklikleri Kaydet' : 'İlaç Ekle') + '</button><button class="btn ghost full" data-a="drug-step" data-step="2">Önceki</button></div>';
+    var freq = document.getElementById('drug-frequency'); if (freq) { freq.value = String(values.length); }
+  }
+  $sheet.dataset.drugstep = String(step); $sheet.hidden = false; syncGuard();
+}
 function openDrugTimeSheet(did) {
-  $sheet.dataset.drugid = did;
-  $sheet.innerHTML = '<div class="sheet-in"><h2>İlaç Kullanım Saati</h2><input type="time" id="drug-sheet-time" value="08:00">' +
-    '<button class="btn full" data-a="save-drug">Kaydet</button></div>';
-  $sheet.hidden = false; syncGuard();
+  var old = myDrugs.find(function (x) { return x.id === did; });
+  drugDraft = { id: did, days: old && old.days ? old.days.slice() : [0,1,2,3,4,5,6], times: old && old.times ? old.times.slice() : ["09:00"] };
+  renderDrugStep(1);
 }
 
 
@@ -1254,7 +1298,39 @@ function getLN() {
   if (!(cap && cap.isNativePlatform && cap.isNativePlatform())) return null;
   if (LNP) return LNP;
   LNP = (cap.Plugins && cap.Plugins.LocalNotifications) || (cap.registerPlugin ? cap.registerPlugin("LocalNotifications") : null);
+  if (LNP && !localAlarmActionsReady) {
+    localAlarmActionsReady = true;
+    LNP.registerActionTypes({ types: [{ id: "medicine", actions: [
+      { id: "taken", title: "İlacımı aldım" },
+      { id: "snooze", title: "10 dk sonra hatırlat" }
+    ] }] }).catch(function (e) { console.log("Bildirim seçenekleri kurulamadı", e); });
+    LNP.addListener("localNotificationActionPerformed", handleLocalAlarmAction);
+  }
   return LNP;
+}
+var localAlarmActionsReady = false;
+function handleLocalAlarmAction(event) {
+  var action = event && event.actionId, note = event && event.notification, extra = note && note.extra;
+  if (!extra || extra.kind !== "drug" || !currentUser) return;
+  var med = myDrugs.find(function (x) { return x.id === extra.drugId; });
+  if (!med) return;
+  if (action === "taken") {
+    var today = todayStr();
+    med.taken = med.taken || {};
+    med.taken[today] = med.taken[today] || [];
+    if (med.taken[today].indexOf(extra.time) < 0) med.taken[today].push(extra.time);
+    saveUserData(); render(false); toast("İlaç aldım olarak işaretlendi.");
+  } else if (action === "snooze") {
+    var ln = getLN();
+    if (!ln) return;
+    ln.schedule({ notifications: [{
+      id: alarmId("snooze:" + extra.drugId + ":" + Date.now()),
+      title: "💊 İlaç vakti",
+      body: (DRUGS[extra.drugId] || {}).name + " için 10 dakika erteleme hatırlatması.",
+      channelId: chanId(soundPref("drug")), iconColor: "#0B6B6F", actionTypeId: "medicine",
+      extra: extra, schedule: { at: new Date(Date.now() + 10 * 60 * 1000), allowWhileIdle: true }
+    }] }).catch(function (e) { console.log("Erteleme kurulamadı", e); });
+  }
 }
 function alarmId(key) {
   var h = 17;
@@ -1288,17 +1364,26 @@ function doReschedule() {
     }).then(function () {
       var notes = [];
       routineEntries().forEach(function (e) {
+        if (e.type === "drug" && !e.alarmEnabled) return;
         var t = String(e.time || "").split(":");
         if (t.length !== 2) return;
         var hh = parseInt(t[0], 10), mm = parseInt(t[1], 10);
         if (isNaN(hh) || isNaN(mm)) return;
-        notes.push({
-          id: alarmId(e.type + ":" + e.id),
-          title: e.type === "drug" ? "💊 İlaç vakti" : "🌿 Takviye vakti",
-          body: e.name + " alma zamanın geldi.",
-          channelId: chanId(soundPref(e.type === "drug" ? "drug" : "supp")),
-          iconColor: "#0B6B6F",
-          schedule: { on: { hour: hh, minute: mm }, allowWhileIdle: true }
+        if (e.type === "drug") {
+          (e.times || [e.time]).forEach(function (drugTime) {
+            var parts = String(drugTime || "").split(":"), dh = parseInt(parts[0], 10), dm = parseInt(parts[1], 10);
+            if (parts.length !== 2 || isNaN(dh) || isNaN(dm)) return;
+            (e.days || [0,1,2,3,4,5,6]).forEach(function (weekday) {
+              notes.push({ id: alarmId("drug:" + e.id + ":" + weekday + ":" + drugTime), title: "💊 İlaç vakti", body: e.name + " alma zamanın geldi.",
+                channelId: chanId(soundPref("drug")), iconColor: "#0B6B6F", actionTypeId: "medicine",
+                extra: { kind: "drug", drugId: e.id, time: drugTime },
+                schedule: { on: { weekday: weekday === 0 ? 1 : weekday + 1, hour: dh, minute: dm }, allowWhileIdle: true }
+              });
+            });
+          });
+        } else notes.push({
+          id: alarmId(e.type + ":" + e.id), title: "🌿 Takviye vakti", body: e.name + " alma zamanın geldi.",
+          channelId: chanId("supp"), iconColor: "#0B6B6F", schedule: { on: { hour: hh, minute: mm }, allowWhileIdle: true }
         });
       });
       if (notes.length) return ln.schedule({ notifications: notes });
@@ -1414,6 +1499,22 @@ document.addEventListener("change", function (e) {
     setSoundPref(t.dataset.snd, t.value);
     playSound(t.value);
     rescheduleAlarms();
+  }
+  if (t && t.dataset && t.dataset.drugDay !== undefined) {
+    var day = parseInt(t.dataset.drugDay, 10), pos = drugDraft.days.indexOf(day);
+    if (t.checked && pos < 0) drugDraft.days.push(day);
+    if (!t.checked && pos >= 0) drugDraft.days.splice(pos, 1);
+  }
+  if (t && t.id === "drug-frequency") {
+    var count = parseInt(t.value, 10) || 1, prev = drugDraft.times || ["09:00"];
+    drugDraft.times = [];
+    for (var ti = 0; ti < count; ti++) drugDraft.times.push(prev[ti] || (ti === 0 ? "09:00" : ti === 1 ? "21:00" : ti === 2 ? "15:00" : "18:00"));
+    drugDraft.times.sort();
+    renderDrugStep(3);
+  }
+  if (t && t.dataset && t.dataset.drugTime !== undefined) {
+    drugDraft.times = drugDraft.times || [];
+    drugDraft.times[parseInt(t.dataset.drugTime, 10)] = t.value;
   }
 });
 
@@ -1576,6 +1677,11 @@ document.addEventListener("click", function (e) {
   var a = el.dataset.a, id = el.dataset.id;
 
   if (a === "close-modal") { closeModal(); }
+  else if (a === "confirm-drug-alarm") {
+    var alarmDrug = myDrugs.find(function (x) { return x.id === id; });
+    if (alarmDrug) { alarmDrug.alarmEnabled = !alarmDrug.alarmEnabled; saveUserData(); render(false); toast(alarmDrug.alarmEnabled ? "Bu ilaç için alarm açıldı." : "Bu ilaç için alarm kapatıldı."); }
+    closeModal();
+  }
   else if (a === "open-announcements-modal") { openAnnouncementsModal(); }
   else if (a === "switch-auth") { state.authMode = el.dataset.mode; render(false); }
   else if (a === "toggle-pass") {
@@ -1736,6 +1842,18 @@ document.addEventListener("click", function (e) {
   else if (a === "start") { openSheet(id); }
   else if (a === "open-drug-sheet") { openDrugSheet(); }
   else if (a === "add-drug-item") { openDrugTimeSheet(id); }
+  else if (a === "drug-step") {
+    var step = parseInt(el.dataset.step, 10);
+    if (step === 3 && !drugDraft.days.length) { toast("En az bir gün seç."); return; }
+    renderDrugStep(step);
+  }
+  else if (a === "toggle-drug-alarm") {
+    var alarmDrug2 = myDrugs.find(function (x) { return x.id === id; });
+    if (!alarmDrug2) return;
+    var nextEnabled = alarmDrug2.alarmEnabled === false;
+    $modal.innerHTML = '<div class="modal-box"><h3>' + (nextEnabled ? '🔔 Alarmı aç' : '🔕 Alarmı kapat') + '</h3><p>Alarm ' + (nextEnabled ? 'bu ilaç için açılacaktır' : 'bu ilaç için kapatılacaktır') + '. Son kararınız mı?</p><p><strong>' + esc((DRUGS[id] || {}).name || '') + '</strong></p><button class="btn full" data-a="confirm-drug-alarm" data-id="' + esc(id) + '">Evet, ' + (nextEnabled ? 'aç' : 'kapat') + '</button><button class="btn ghost full" data-a="close-modal">Vazgeç</button></div>';
+    $modal.hidden = false; syncGuard();
+  }
   else if (a === "close") { closeSheet(); }
   else if (a === "start-edit") {
     if (!currentUser || currentUser.email !== ADMIN_EMAIL) { toast("Yalnızca yönetici düzenleme yapabilir."); return; }
@@ -1831,9 +1949,14 @@ document.addEventListener("click", function (e) {
     saveUserData(); closeSheet(); render(false); toast("Listeye eklendi.");
   }
   else if (a === "save-drug") {
-    var v2 = document.getElementById("drug-sheet-time").value, did = $sheet.dataset.drugid;
+    var did = drugDraft.id, times = (drugDraft.times || []).slice();
+    document.querySelectorAll("[data-drug-time]").forEach(function (input) { times[parseInt(input.dataset.drugTime, 10)] = input.value; });
+    if (!times.length || times.some(function (tm) { return !tm; })) { toast("Lütfen tüm hatırlatma saatlerini seç."); return; }
+    if (new Set(times).size !== times.length) { toast("Hatırlatma saatleri birbirinden farklı olmalı."); return; }
+    times.sort();
     var d = myDrugs.find(function(x){return x.id===did;});
-    if (d) d.time = v2; else myDrugs.push({ id: did, time: v2, done: false });
+    if (d) { d.times = times; d.days = drugDraft.days.slice(); d.time = times[0]; d.alarmEnabled = d.alarmEnabled !== false; }
+    else myDrugs.push({ id: did, time: times[0], times: times, days: drugDraft.days.slice(), alarmEnabled: true, taken: {}, done: false });
     saveUserData(); closeSheet(); render(false); toast("İlaç eklendi.");
   }
   else if (a === "remove-supp") { mine = mine.filter(function(x){return x.id!==id;}); saveUserData(); render(false); }
